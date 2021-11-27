@@ -10,7 +10,7 @@
 	////////////////////////////////////////
 	// lang
 
-	const curry = (f,n) => {
+	const curry_v1 = (f,n) => {
 		const _oof = new Array(n || f.length);
 		const _inf = [];
 		const _curry = (...args) => {
@@ -25,6 +25,27 @@
 			}
 		};
 		return _curry;
+	};
+
+	const curry = (f,n) => {
+		const _oof = new Array(n || f.length);
+		const _inf = [];
+		const _curry = (_oof=[], _inf=[]) => {
+			return (...args) => {
+				const oof = [].concat(_oof);
+				const inf = [].concat(_inf);
+				while (oof.length > 0 && args.length > 0) {
+					oof.shift();
+					inf.push(args.shift());
+				}
+				if (oof.length === 0) {
+					return f(...inf);
+				} else {
+					return _curry(oof, inf);
+				}
+			};
+		};
+		return _curry(_oof);
 	};
 
 	const memoize = (f) => {
@@ -43,6 +64,7 @@
 	};
 
 	Object.assign(__ns__, {
+		curry_v1,
 		curry,
 		memoize,
 	});

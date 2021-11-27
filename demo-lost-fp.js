@@ -281,12 +281,34 @@
 
 	let res;
 	build = (x,y,z) => ({x,y,z});
+	res = lost._.curry_v1(build,3)('foo')(42)('고구마');
+	console.log(JSON.stringify(res));
+		// {"x":"foo","y":42,"z":"고구마"}
+	res = lost._.curry_v1(build)('foo')(42)('고구마');
+	console.log(JSON.stringify(res));
+		// {"x":"foo","y":42,"z":"고구마"}
+})();
+
+(function () {
+	console.log('-- journey to curry (4)');
+
+	let res;
+	build = (x,y,z) => ({x,y,z});
 	res = lost._.curry(build,3)('foo')(42)('고구마');
 	console.log(JSON.stringify(res));
 		// {"x":"foo","y":42,"z":"고구마"}
 	res = lost._.curry(build)('foo')(42)('고구마');
 	console.log(JSON.stringify(res));
 		// {"x":"foo","y":42,"z":"고구마"}
+	build = lost._.curry(build);
+	build('foo');
+	build = build('bar');
+	build(42);
+	build = build(43);
+	build('고구마');
+	res = build = build('고사리');
+	console.log(JSON.stringify(res));
+		// {"x":"bar","y":43,"z":"고사리"}
 })();
 
 (function () {
