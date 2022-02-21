@@ -86,6 +86,27 @@
 			});
 			return mixed;
 		},
+		// nested value of
+		// src 객체 내부의 path 경로의 값을 찾아 리턴.
+		// undefined 를 만나면 dflt 디폴트 값을 리턴.
+		// path 경로 구분자는 '/', 배열 인덱스는 [] 없이.
+		// 예를 들어 body.Foo.Bar[0].Qux 를 찾는 경우
+		// nvo(body, "Foo/Bar/0/Qux", "0")
+		nvo: function (src, path, dflt) {
+			let x = src,
+				y = (path == undefined ? [] : path.split('/')),
+				z = (dflt == undefined ? '' : dflt);
+			if (x == undefined) {
+				return z;
+			}
+			for (let i in y) {
+				x = x[y[i]];
+				if (x == undefined) {
+					return z;
+				}
+			}
+			return x;
+		}
 	});
 
 	////////////////////////////////////////
@@ -172,7 +193,7 @@
 			});
 		},
 		// rows를 keyNames 키들을 기준으로 정렬.
-		sort: function (rows, keyNames, asNumber) {
+		sort_v1: function (rows, keyNames, asNumber) {
 			function values(_row, _keyNames) {
 				let vals = _keyNames.map((_keyName) => _row[_keyName]);
 				return vals;
@@ -196,6 +217,40 @@
 				return 0;
 			});
 			return sorted;
+		},
+		// - arr: array to sort  -- not changed
+		// - by : function or (keyNameOpt, ...)
+		//   - keyNameOpt: [#][~]keyName
+		//     - #: asNumber
+		//     - ~: descending
+		sort: function (arr, by) {
+			if (typeof by === 'function') {
+				return arr.slice().sort(by);
+			}
+			let asNumbers = by.map((k) => (k.includes('#') ? true : false));
+			let keyNames = by.map((k) => k.replace(/[#~]/g, ''));
+			let orders = by.map((k) => (k.includes('~') ? -1 : 1)); // -1 descending
+			function values(_row, _keyNames) {
+				return _keyNames.map((_keyName) => _row[_keyName]);
+			}
+			return arr.slice().sort((e1, e2) => {
+				let vals1 = values(e1, keyNames);
+				let vals2 = values(e2, keyNames);
+				for (let ix in keyNames) {
+					let v1 = vals1[ix];
+					let v2 = vals2[ix];
+					if (asNumbers[ix]) {
+						v1 = Number(v1);
+						v2 = Number(v2);
+					}
+					if (v1 > v2) {
+						return 1 * orders[ix];
+					} else if (v1 < v2) {
+						return -1 * orders[ix];
+					}
+				}
+				return 0;
+			});
 		},
 		// rows를 keyNames 키들을 기준으로 비교해서 중복 제거
 		unique: function (rows, keyNames) {

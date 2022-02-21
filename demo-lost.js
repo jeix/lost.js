@@ -19,6 +19,29 @@
 })();
 
 (function () {
+  console.log('--object.nvo');
+  const PATH = 'Foo/Bar/0/Qux';
+  const pane = {};
+  let val = lost.object.nvo(pane, PATH, '0');
+  console.assert(val !== '4');
+  pane.Foo = {};
+  val = lost.object.nvo(pane, PATH, '0');
+  console.assert(val !== '4');
+  pane.Foo.Bar = [];
+  val = lost.object.nvo(pane, PATH, '0');
+  console.assert(val !== '4');
+  pane.Foo.Bar[0] = {};
+  val = lost.object.nvo(pane, PATH, '0');
+  console.assert(val !== '4');
+  pane.Foo.Bar[0].Qux = '';
+  val = lost.object.nvo(pane, PATH, '0');
+  console.assert(val !== '4');
+  pane.Foo.Bar[0].Qux = '4';
+  val = lost.object.nvo(pane, PATH, '0');
+  console.assert(val === '4');
+})();
+
+(function () {
   console.log('-- list.filter');
   let obj1 = {x: 'foo', y: 42};
   let obj2 = {x: 'bar', y: 123};
@@ -93,12 +116,12 @@
 })();
 
 (function () {
-  console.log('-- list.sort');
+  console.log('-- list.sort (1)');
   let obj1 = {x: 'foo', y: 42, z: '고구마'};
   let obj2 = {x: 'bar', y: 123, z: '고사리'};
   let obj3 = {x: 'qux', y: 24, z: '고라니'};
   let arr1 = [obj1, obj2, obj3];
-  lost.list.sort(arr1, ['x']);
+  lost.list.sort_v1(arr1, ['x']);
   console.log(JSON.stringify(arr1));
     // [
     // {"x":"bar","y":123,"z":"고사리"},
@@ -106,12 +129,68 @@
     // {"x":"qux","y":24,"z":"고라니"}
     // ]
   arr1 = [obj1, obj2, obj3];
-  lost.list.sort(arr1, ['y']);
+  lost.list.sort_v1(arr1, ['y']);
   console.log(JSON.stringify(arr1));
     // [
     // {"x":"qux","y":24,"z":"고라니"},
     // {"x":"foo","y":42,"z":"고구마"},
     // {"x":"bar","y":123,"z":"고사리"}
+    // ]
+})();
+
+(function () {
+  console.log('-- list.sort (2)');
+  let obj1 = {x: 'foo', y: '42', z: '고구마'};
+  let obj2 = {x: 'bar', y: '123', z: '고사리'};
+  let obj3 = {x: 'qux', y: '24', z: '고라니'};
+  let arr1 = [obj1, obj2, obj3];
+  let arr2 = lost.list.sort(arr1, (e1, e2) => (
+  	e1.x > e2.x ? 1 : // ascending
+  	e1.x < e2.x ? -1 :
+  	e1.y > e2.y ? -1 : // descending
+  	e1.y < e2.y ? 1 :
+  	0
+  ));
+  console.log(JSON.stringify(arr2));
+    // [
+    // {"x":"bar","y":"123","z":"고사리"},
+    // {"x":"foo","y":"42","z":"고구마"},
+    // {"x":"qux","y":"24","z":"고라니"}
+    // ]
+  arr2 = lost.list.sort(arr1, ['~x']); // descending
+  console.log(JSON.stringify(arr2));
+    // [
+    // {"x":"qux","y":"24","z":"고라니"},
+    // {"x":"foo","y":"42","z":"고구마"},
+    // {"x":"bar","y":"123","z":"고사리"}
+    // ]
+  arr2 = lost.list.sort(arr1, ['y']);
+  console.log(JSON.stringify(arr2));
+    // [
+    // {"x":"bar","y":"123","z":"고사리"},
+    // {"x":"qux","y":"24","z":"고라니"},
+    // {"x":"foo","y":"42","z":"고구마"}
+    // ]
+  arr2 = lost.list.sort(arr1, ['~y']); // descending
+  console.log(JSON.stringify(arr2));
+    // [
+    // {"x":"foo","y":"42","z":"고구마"},
+    // {"x":"qux","y":"24","z":"고라니"},
+    // {"x":"bar","y":"123","z":"고사리"}
+    // ]
+  arr2 = lost.list.sort(arr1, ['#y']); // asNumber
+  console.log(JSON.stringify(arr2));
+    // [
+    // {"x":"qux","y":"24","z":"고라니"},
+    // {"x":"foo","y":"42","z":"고구마"},
+    // {"x":"bar","y":"123","z":"고사리"}
+    // ]
+  arr2 = lost.list.sort(arr1, ['#~y']); // asNumber descending
+  console.log(JSON.stringify(arr2));
+    // [
+    // {"x":"bar","y":"123","z":"고사리"}
+    // {"x":"foo","y":"42","z":"고구마"},
+    // {"x":"qux","y":"24","z":"고라니"},
     // ]
 })();
 
