@@ -7,6 +7,7 @@ list, object, string, tool
 - object
   - lost.object.copyKeys(...)
   - lost.object.mixin(...)
+  - lost.object.nvo(...) — nested value of
 - list
   - lost.list.filter(list, ...) — findAll
   - lost.list.find(list, cond) — findFirst
@@ -37,6 +38,8 @@ list, object, string, tool
 - number
   - lost.number.format(n, fmt) «NY»
   - lost.number.parse(s) «NY»
+- utility
+  - lost.util.unv(...) — until not void — like nvl
 
 ## lost-fp.js
 

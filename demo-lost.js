@@ -319,3 +319,10 @@
   let n = lost.number.parse('1,234,567.89');
   console.log(JSON.stringify(n));   // 1234567.89
 })();
+
+(function () {
+  console.log('--util.unv');
+
+  let res = lost.util.unv(undefined, null, 0, '', 42);
+  console.log(JSON.stringify(res));   // 42
+})();

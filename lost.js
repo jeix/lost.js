@@ -38,12 +38,15 @@
 	}
 
 	// row에서 keyNames 키들의 값을 찾아 '_'로 연결
-	function _keyStrOf(row, keyNames) {
+	function _keyStrOf_v1(row, keyNames) {
 		let keys = [];
 		keyNames.forEach((keyName) => {
 			keys.push(row[keyName]);
 		});
 		return keys.join('_');
+	}
+	function _keyStrOf(row, keyNames) {
+		return keyNames.map((keyName) => row[keyName]).join('_');
 	}
 
 	// src에서 dst로 프로퍼티 복사.
@@ -253,13 +256,25 @@
 			});
 		},
 		// rows를 keyNames 키들을 기준으로 비교해서 중복 제거
-		unique: function (rows, keyNames) {
+		unique_v1: function (rows, keyNames) {
 			let uniques = [];
 			let uniqueKeyStrs = [];
 			rows.forEach((row) => {
 				let keyStr = _keyStrOf(row, keyNames);
 				let duplicated = uniqueKeyStrs.find((uniqueKeyStr) => keyStr === uniqueKeyStr);
 				if (duplicated === undefined) {
+					uniques.push(row);
+					uniqueKeyStrs.push(keyStr);
+				}
+			});
+			return uniques;
+		},
+		unique: function (rows, keyNames) {
+			let uniques = [];
+			let uniqueKeyStrs = [];
+			rows.forEach((row) => {
+				let keyStr = keyNames.map((keyName) => row[keyName]).join('_');
+				if (! uniqueKeyStrs.includes(keyStr)) {
 					uniques.push(row);
 					uniqueKeyStrs.push(keyStr);
 				}
@@ -582,6 +597,19 @@
 			s = s.replace(/,/g, '');
 			let n = Number(s);
 			return n;
+		},
+	});
+	
+	////////////////////////////////////////
+	// 유틸리티
+
+	__lime__.util = {};
+
+	_define(__lime__.util, {
+		// until not void
+		unv: function (...args) {
+			//let args = [].slice.call(arguments);
+			return args.find((arg) => !!arg);
 		},
 	});
 
