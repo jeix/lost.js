@@ -300,7 +300,7 @@
 })();
 
 (function () {
-  console.log('--number');
+  console.log('-- number.format');
 
   let s;
   s = lost.number.format(0);
@@ -316,12 +316,13 @@
   s = lost.number.format(-1234.567);
   console.log(JSON.stringify(s));   // "-1,234.567"
 
+  console.log('-- number.parse');
   let n = lost.number.parse('1,234,567.89');
   console.log(JSON.stringify(n));   // 1234567.89
 })();
 
 (function () {
-  console.log('--util.unv');
+  console.log('-- util.unv');
 
   let res = lost.util.unv(undefined, null, 0, '', 42);
   console.log(JSON.stringify(res));   // 42

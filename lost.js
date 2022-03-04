@@ -553,7 +553,7 @@
 		// 숫자 n을 변환해서 천단위마다 쉼표.
 		// (빈 문자열도 0으로 변환)
 		// 변환된 값이 0이면 빈 문자열 또는 zero 파라미터 존재 시 zero
-		format: function (n, zero) {
+		format_v1: function (n, zero) {
 			/*
 			if (n === '') {
 				return n;
@@ -590,6 +590,22 @@
 				acc = acc.slice(1);
 			}
 			return sign + acc.join('') + decimal;
+		},
+		format: function (n, zero) {
+			let _n = Number(n || '');
+			if (_n === 0) {
+				return typeof(zero) !== 'undefined' ? zero : '';
+			}
+			if (isNaN(_n)) {
+				return n;
+			}
+			let s = String(_n);
+			return s.replace(/(\d)(?=(?:\d{3})+(?!\d))/g, '$1,');
+				// x(?=y) -- Matches "x" only if "x" is followed by "y".
+				// x(?!y) -- Matches "x" only if "x" is not followed by "y".
+				// (?<=y)x -- Matches "x" only if "x" is preceded by "y".
+				// (?<!y)x -- Matches "x" only if "x" is not preceded by "y".
+				// (?:x) -- Matches "x" but does not remember the match.
 		},
 		// 숫자 문자열 s를 숫자로 변환
 		parse: function (s) {
