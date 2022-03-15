@@ -396,7 +396,7 @@
 			if (typeof(s.padStart) === 'function') {
 				return c ? s.padStart(len, c) : s.padStart(len);
 			} else {
-				c = c || '';
+				c = c || ' ';
 				while (s.length < len) {
 					s = c + s;
 				}
@@ -407,7 +407,7 @@
 			if (typeof(s.padEnd) === 'function') {
 				return c ? s.padEnd(len, c) : s.padEnd(len);
 			} else {
-				c = c || '';
+				c = c || ' ';
 				while (s.length < len) {
 					s = s + c;
 				}
