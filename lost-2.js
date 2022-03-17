@@ -20,6 +20,7 @@ const assert = console.assert;
 
 const lost = {
 	object: {},
+	array: {},
 	list: {},
 	string: {},
 	number: {},
@@ -248,6 +249,21 @@ lost.object.nvo = function (src, path, dflt) {
 	pane.Foo.Bar = false;
 	val = lost.object.nvo(pane, PATH, '0');
 	assert(val === '0', toString(pane) + '::' + val);
+})();
+
+if (typeof Array.prototype.includes === 'function')
+lost.array.includes = (arr, seek) => arr.includes(seek);
+else
+lost.array.includes = (arr, seek) => arr.indexOf(seek) >= 0;
+
+(function () {
+	section('array.includes');
+	let arr1 = ['foo', 'bar', 'qux'];
+	console.assert(lost.array.includes(arr1, 'foo') === true);
+	console.assert(lost.array.includes(arr1, 'bar') === true);
+	console.assert(lost.array.includes(arr1, 'qux') === true);
+	console.assert(lost.array.includes(arr1, 'baz') === false);
+	console.assert(lost.array.includes(arr1, '') === false);
 })();
 
 // howto
@@ -790,6 +806,52 @@ lost.list.flowDown = (outers, inners, keys, worker) => {
 		// ]
 })();
 
+(function () {
+	section('lost.list.groupBy');
+	section('lost.list.flowDown');
+	function rowspan(list, keys) {
+		list.forEach((elem) => { elem.rowspan = {}; });
+		let subk;
+		let aggreagte = (group, member) => {
+			let k = keys.slice(-1)[0];
+			if (typeof subk === 'undefined') {
+				group.rowspan[k] = (group.rowspan[k] || 0) + 1;
+			} else {
+				group.rowspan[k] = (group.rowspan[k] || 0) + member.rowspan[subk];
+			}
+		};
+		while (keys.length > 0) {
+			let groups = lost.list.groupBy(list, keys, aggreagte);
+			list = lost.list.unique(list, keys);
+			lost.list.flowDown(groups, list, keys, (group, member) => {
+				member.rowspan = group.rowspan;
+			});
+			subk = keys.pop();
+		}
+	}
+	function draw(rows) {
+		let lines = rows.map((row) => (
+			`|${row.rowspan && row.rowspan.x ? row.rowspan.x + ':' + row.x : '     '}` +
+			`|${row.rowspan && row.rowspan.y ? row.rowspan.y + ':' + row.y : '    '}` +
+			`|${row.z}|`
+		));
+		lines = lines.join('\n');
+		console.log(lines);
+	}
+	let obj1 = {x: 'foo', y: 42, z: '고구마'};
+	let obj2 = {x: 'foo', y: 42, z: '고사리'};
+	let obj3 = {x: 'foo', y: 43, z: '고라니'};
+	let obj4 = {x: 'bar', y: 44, z: '고등어'};
+	let obj5 = {x: 'bar', y: 45, z: '고양이'};
+	let obj6 = {x: 'bar', y: 45, z: '고드름'};
+	let arr1 = [obj1, obj2, obj3, obj4, obj5, obj6];
+	rowspan(arr1, ['x','y']);
+	draw(arr1);
+})();
+
+if (typeof String.prototype.includes === 'function')
+lost.string.includes = (s, part) => s.includes(part);
+else
 lost.string.includes = (s, part) => s.indexOf(part) >= 0;
 
 (function () {
