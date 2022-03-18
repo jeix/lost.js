@@ -27,6 +27,16 @@ const lost = {
 	util: {},
 };
 
+const constants = {
+	// object.toArray
+	FLAT: 'flat', // ['x', xval, 'y', yval, 'z', zval]
+	NEST: 'nest', // [['x', xval], ['y', yval], ['z', zval]]
+	OBJE: 'obje', // [{k:'x', v: xval}, {k:'y', v:yval}, {k:'z', v:zval}]
+	// list.zip2
+	SHORTEST: 'shortest',
+	LONGEST: 'longest',
+};
+
 /*
 let {x, y, z} = src;
 let dst = {x, y, z};
@@ -106,15 +116,9 @@ lost.object.fromArray = _fromArray;
 	print(obj3);	// {"x":"foo","y":42,"z":"고구마"}
 })();
 
-const constants = {
-	FLAT: 'flat', // ['x', xval, 'y', yval, 'z', zval]
-	NEST: 'nest', // [['x', xval], ['y', yval], ['z', zval]]
-	OBJE: 'obje', // [{k:'x', v: xval}, {k:'y', v:yval}, {k:'z', v:zval}]
-};
 lost.object.FLAT = constants.FLAT;
 lost.object.NEST = constants.NEST;
 lost.object.OBJE = constants.OBJE;
-
 lost.object.toArray = (from, mode, keys) => {
 	let to = [];
 	keys = keys || Object.keys(from);
@@ -251,10 +255,13 @@ lost.object.nvo = function (src, path, dflt) {
 	assert(val === '0', toString(pane) + '::' + val);
 })();
 
-if (typeof Array.prototype.includes === 'function')
-lost.array.includes = (arr, seek) => arr.includes(seek);
-else
-lost.array.includes = (arr, seek) => arr.indexOf(seek) >= 0;
+// useless unless IE
+lost.array.includes = (() => {
+	if (typeof Array.prototype.includes === 'function')
+		return (arr, seek) => arr.includes(seek);
+	else
+		return (arr, seek) => arr.indexOf(seek) >= 0;
+})();
 
 (function () {
 	section('array.includes');
@@ -643,14 +650,16 @@ lost.list.slim = (list, keys) => {
 	print(arr2);	// [{"x":"foo","y":42},{"x":"bar","y":43},{"x":"qux","y":44}]
 })();
 
+// instead use Array.prototype.flat
 lost.list.flatten = (list) => {
 	let flatten = [];
 	list.forEach((x) => {
 		if (Array.isArray(x)) {
 			let sublist = x;
-			sublist.forEach((subx) => {
-				flatten.push(subx);
-			});
+			//sublist.forEach((subx) => {
+			//	flatten.push(subx);
+			//});
+			flatten = flatten.concat(sublist);
 		} else {
 			flatten.push(x);
 		}
@@ -696,6 +705,46 @@ lost.list.zip = function (list1, list2) {
 		// [{"x":"foo"},{"y":42},{"z":"고구마"}],
 		// [{"x":"bar"},{"y":43},{"z":"고사리"}],
 		// [{"x":"qux"},{"y":44},{"z":"고라니"}]
+		// ]
+})();
+
+lost.list.SHORTEST = constants.SHORTEST;
+lost.list.LONGEST = constants.LONGEST;
+lost.list.zip2 = function (length, list1, list2) {
+	let lists = Array.from(arguments);
+	lists.shift(); // length
+	if (length === constants.SHORTEST) {
+		length = _min.apply(null, lists.map((list) => list.length));
+	} else if (length === constants.LONGEST) {
+		length = _max.apply(null, lists.map((list) => list.length));
+	}
+	let zips = new Array(length).fill(0).map((_) => []);
+	zips.forEach((zip, ix) => {
+		lists.forEach((list) => {
+			zip.push(list[ix] || null);
+		});
+	});
+	return zips;
+};
+
+(function () {
+	section('list.zip2');
+	let arr1 = [{x: 'foo'}, {x: 'bar'}, {x: 'qux'}];
+	let arr2 = [{y: 42}, {y: 43}];
+	let arr3 = [{z: 'apple'}, {z: 'orange'}, {z: 'banana'}, {z: 'peach'}];
+	let zipped1 = lost.list.zip2(lost.list.SHORTEST, arr1, arr2, arr3);
+	print(zipped1);
+		// [
+		// [{"x":"foo"},{"y":42},{"z":"apple"}],
+		// [{"x":"bar"},{"y":43},{"z":"orange"}]
+		// ]
+	let zipped2 = lost.list.zip2(lost.list.LONGEST, arr1, arr2, arr3);
+	print(zipped2);
+		// [
+		// [{"x":"foo"},{"y":42},{"z":"apple"}],
+		// [{"x":"bar"},{"y":43},{"z":"orange"}],
+		// [{"x":"qux"},null,{"z":"banana"}],
+		// [null,null,{"z":"peach"}]
 		// ]
 })();
 
@@ -849,10 +898,13 @@ lost.list.flowDown = (outers, inners, keys, worker) => {
 	draw(arr1);
 })();
 
-if (typeof String.prototype.includes === 'function')
-lost.string.includes = (s, part) => s.includes(part);
-else
-lost.string.includes = (s, part) => s.indexOf(part) >= 0;
+// useless unless IE
+lost.string.includes = (() => {
+	if (typeof String.prototype.includes === 'function')
+		return (s, part) => s.includes(part);
+	else
+		return (s, part) => s.indexOf(part) >= 0;
+})();
 
 (function () {
 	section('string.includes');
