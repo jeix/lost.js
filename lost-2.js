@@ -35,7 +35,14 @@ const constants = {
 	// list.zip2
 	SHORTEST: 'shortest',
 	LONGEST: 'longest',
+	// number.stringify
+	EMPTY: '',
+	HYPHEN: '-',
+	ZERO: '0',
 };
+
+////////////////////////////////////////
+// object
 
 /*
 let {x, y, z} = src;
@@ -48,12 +55,12 @@ function _partial(from, keys) {
 	});
 	return to;
 }
-lost.object.partial = _partial;
+lost.partial = _partial;
 
 (function () {
 	section('object.partial');
 	let obj1 = {x: 'foo', y: 42, z: '고구마'};
-	let obj2 = lost.object.partial(obj1, ['x','y']);
+	let obj2 = lost.partial(obj1, ['x','y']);
 	print(obj2);	// {"x":"foo","y":42}
 })();
 
@@ -66,13 +73,13 @@ function _partialExcept(from, keys) {
 	});
 	return to;
 }
-lost.object.negativePartial = _partialExcept;
+lost.negativePartial = _partialExcept;
 
 (function () {
 	section('object.negativePartial');
 	let obj1 = {x: 'foo', y: 42, z: '고구마'};
 	obj1 = {u: 'banana', v: 'orange', ...obj1};
-	let obj2 = lost.object.negativePartial(obj1, ['x','y']);
+	let obj2 = lost.negativePartial(obj1, ['x','y']);
 	print(obj2);	// {"u":"banana","v":"orange","z":"고구마"}
 })();
 
@@ -101,25 +108,25 @@ function _fromArray(args) {
 	}
 	return obj;
 }
-lost.object.fromArray = _fromArray;
+lost.fromArray = _fromArray;
 
 (function () {
 	section('object.fromArray');
 	let arr1 = ['x', 'foo', 'y', 42, 'z', '고구마'];
-	let obj1 = lost.object.fromArray(arr1);
+	let obj1 = lost.fromArray(arr1);
 	print(obj1);	// {"x":"foo","y":42,"z":"고구마"}
 	let arr2 = [['x', 'foo'], ['y', 42], ['z', '고구마']];
-	let obj2 = lost.object.fromArray(arr2);
+	let obj2 = lost.fromArray(arr2);
 	print(obj2);	// {"x":"foo","y":42,"z":"고구마"}
 	let arr3 = [{k:'x', v:'foo'}, {k:'y', v:42}, {k:'z', v:'고구마'}];
-	let obj3 = lost.object.fromArray(arr3);
+	let obj3 = lost.fromArray(arr3);
 	print(obj3);	// {"x":"foo","y":42,"z":"고구마"}
 })();
 
-lost.object.FLAT = constants.FLAT;
-lost.object.NEST = constants.NEST;
-lost.object.OBJE = constants.OBJE;
-lost.object.toArray = (from, mode, keys) => {
+lost.FLAT = constants.FLAT;
+lost.NEST = constants.NEST;
+lost.OBJE = constants.OBJE;
+lost.toArray = (from, mode, keys) => {
 	let to = [];
 	keys = keys || Object.keys(from);
 	if (mode === constants.FLAT) {
@@ -141,28 +148,30 @@ lost.object.toArray = (from, mode, keys) => {
 (function () {
 	section('object.toArray');
 	let obj1 = {x: 'foo', y: 42, z: '고구마'};
-	let arr1 = lost.object.toArray(obj1, lost.object.FLAT);
+	let arr1 = lost.toArray(obj1, lost.FLAT);
 	print(arr1);	// ["x","foo","y",42,"z","고구마"]
-	let arr2 = lost.object.toArray(obj1, lost.object.NEST, ['x','y']);
+	let arr2 = lost.toArray(obj1, lost.NEST, ['x','y']);
 	print(arr2);	// [["x","foo"],["y",42]]
-	let arr3 = lost.object.toArray(obj1, lost.object.OBJE);
+	let arr3 = lost.toArray(obj1, lost.OBJE);
 	print(arr3);	// [{"k":"x","v":"foo"},{"k":"y","v":42},{"k":"z","v":"고구마"}]
 })();
 
 function _toString(x) {
 	return JSON.stringify(x);
 }
-lost.object.toString = _toString;
+lost.toString = _toString;
+lost.jsonify = _toString;
+lost.jsonize = _toString;
 
 function _values(x, keys) {
 	return keys.map((k) => x[k]);
 }
-lost.object.values = _values;
+lost.values = _values;
 
 function _equal(x, y, keys) {
 	return keys.every((k) => x[k] === y[k]);
 }
-lost.object.equal = _equal;
+lost.equal = _equal;
 
 function _mixin_v1(...args) {
 	if (args.length == 0) return {};
@@ -186,20 +195,20 @@ function _mixin(dst, ...ingredients) {
 	});
 	return dst;
 }
-lost.object.mixin = _mixin;
+lost.mixin = _mixin;
 
 (function () {
 	section('object.mixin');
 	let obj1 = {a: 'foo', b: 42};
 	let obj2 = {x: 'bar', y: 43};
 	let obj3 = {m: 'qux', n: 44};
-	let obj4 = lost.object.mixin(obj1, obj2, obj3);
+	let obj4 = lost.mixin(obj1, obj2, obj3);
 	print(obj1);
 		// {"a":"foo","b":42,"x":"bar","y":43,"m":"qux","n":44}
 })();
 
 // nested value of
-lost.object.nvo = function (src, path, dflt) {
+lost.nvo = function (src, path, dflt) {
 	let x = src,
 		y = typeof path === 'string' ? path.split('/') :
 			Array.isArray(path) ? path :
@@ -223,61 +232,52 @@ lost.object.nvo = function (src, path, dflt) {
 	const PATH = 'Foo/Bar/0/Qux';
 	const pane = {};
 	let val;
-	val = lost.object.nvo(pane, PATH, '0');
+	val = lost.nvo(pane, PATH, '0');
 	assert(val === '0', toString(pane) + '::' + val);
 	pane.Foo = {};
-	val = lost.object.nvo(pane, PATH, '0');
+	val = lost.nvo(pane, PATH, '0');
 	assert(val === '0', toString(pane) + '::' + val);
 	pane.Foo.Bar = [];
-	val = lost.object.nvo(pane, PATH, '0');
+	val = lost.nvo(pane, PATH, '0');
 	assert(val === '0', toString(pane) + '::' + val);
 	pane.Foo.Bar[0] = {};
-	val = lost.object.nvo(pane, PATH, '0');
+	val = lost.nvo(pane, PATH, '0');
 	assert(val === '0', toString(pane) + '::' + val);
 	pane.Foo.Bar[0].Qux = '';
-	val = lost.object.nvo(pane, PATH, '0');
+	val = lost.nvo(pane, PATH, '0');
 	assert(val === '', toString(pane) + '::' + val);
 	pane.Foo.Bar[0].Qux = '4';
-	val = lost.object.nvo(pane, PATH, '0');
+	val = lost.nvo(pane, PATH, '0');
 	assert(val === '4', toString(pane) + '::' + val);
 
 	pane.Foo.Bar = '';
-	val = lost.object.nvo(pane, PATH, '0');
+	val = lost.nvo(pane, PATH, '0');
 	assert(val === '0', toString(pane) + '::' + val);
 	pane.Foo.Bar = 0;
-	val = lost.object.nvo(pane, PATH, '0');
+	val = lost.nvo(pane, PATH, '0');
 	assert(val === '0', toString(pane) + '::' + val);
 	pane.Foo.Bar = true;
-	val = lost.object.nvo(pane, PATH, '0');
+	val = lost.nvo(pane, PATH, '0');
 	assert(val === '0', toString(pane) + '::' + val);
 	pane.Foo.Bar = false;
-	val = lost.object.nvo(pane, PATH, '0');
+	val = lost.nvo(pane, PATH, '0');
 	assert(val === '0', toString(pane) + '::' + val);
 })();
 
-// useless unless IE
-lost.array.includes = (() => {
-	if (typeof Array.prototype.includes === 'function')
-		return (arr, seek) => arr.includes(seek);
-	else
-		return (arr, seek) => arr.indexOf(seek) >= 0;
-})();
-
-(function () {
-	section('array.includes');
-	let arr1 = ['foo', 'bar', 'qux'];
-	console.assert(lost.array.includes(arr1, 'foo') === true);
-	console.assert(lost.array.includes(arr1, 'bar') === true);
-	console.assert(lost.array.includes(arr1, 'qux') === true);
-	console.assert(lost.array.includes(arr1, 'baz') === false);
-	console.assert(lost.array.includes(arr1, '') === false);
-})();
+////////////////////////////////////////
+// array
 
 // howto
 // - (x) => { ... }
 // - {x, y, z}
 // - [['x', xval], ['y', yval], ['z', zval]]
 // - ['x', xval, 'y', yval, 'z', zval]
+// 
+// TODO
+// - not equal
+// - in
+// - not in
+// - or
 function _howToSeek(howto) {
 	if (typeof howto === 'function') return howto;
 	if (Array.isArray(howto)) howto = _fromArray(howto);
@@ -290,14 +290,14 @@ function _howToSeek(howto) {
 	}
 	return false;
 }
-lost.list.howToSeek = _howToSeek;
+lost.howToSeek = _howToSeek;
 
 function _filter(arr, howto) {
 	howto = _howToSeek(howto);
 	if (howto === false) return [];
 	return arr.filter(howto);
 }
-lost.list.filter = _filter;
+lost.filter = _filter;
 
 (function () {
 	section('list.filter');
@@ -305,7 +305,7 @@ lost.list.filter = _filter;
 	let obj2 = {x: 'bar', y: 43};
 	let obj3 = {x: 'qux', y: 44};
 	let arr1 = [obj1, obj2, obj3];
-	let filtered = lost.list.filter(arr1, [['x','bar'],['y',43]]);
+	let filtered = lost.filter(arr1, [['x','bar'],['y',43]]);
 	print(filtered);	// [{"x":"bar","y":43}]
 })();
 
@@ -314,7 +314,7 @@ function _find(arr, howto) {
 	if (howto === false) return false;
 	return arr.find(howto) || false;
 }
-lost.list.find = _find;
+lost.find = _find;
 
 (function () {
 	section('list.find');
@@ -322,11 +322,11 @@ lost.list.find = _find;
 	let obj2 = {x: 'bar', y: 43};
 	let obj3 = {x: 'qux', y: 44};
 	let arr1 = [obj1, obj2, obj3];
-	let found = lost.list.find(arr1, {x: 'bar', 'y': 43});
+	let found = lost.find(arr1, {x: 'bar', 'y': 43});
 	print(found);	// {"x":"bar","y":43}
 })();
 
-lost.list.findLast = (arr, howto) => {
+lost.findLast = (arr, howto) => {
 	howto = _howToSeek(howto);
 	if (howto === false) return false;
 	return arr.slice().reverse().find(howto) || false;
@@ -338,7 +338,7 @@ lost.list.findLast = (arr, howto) => {
 	let obj2 = {x: 'bar', y: 43, z: 'orange'};
 	let obj3 = {x: 'foo', y: 42, z: 'banana'};
 	let arr1 = [obj1, obj2, obj3];
-	let found = lost.list.findLast(arr1, (item) => item.x === 'foo' && item.y === 42);
+	let found = lost.findLast(arr1, (item) => item.x === 'foo' && item.y === 42);
 	print(found);	// {"x":"bar","y":43,"z":"orange"}
 })();
 
@@ -347,7 +347,7 @@ function _findIndex(arr, howto) {
 	if (howto === false) return -1;
 	return arr.findIndex(howto);
 }
-lost.list.findIndex = _findIndex;
+lost.findIndex = _findIndex;
 
 (function () {
 	section('list.findIndex');
@@ -355,11 +355,11 @@ lost.list.findIndex = _findIndex;
 	let obj2 = {x: 'bar', y: 43};
 	let obj3 = {x: 'qux', y: 44};
 	let arr1 = [obj1, obj2, obj3];
-	let index = lost.list.findIndex(arr1, ['x','bar','y',43]);
+	let index = lost.findIndex(arr1, ['x','bar','y',43]);
 	print(index);	// 1
 })();
 
-lost.list.findLastIndex = (arr, howto) => {
+lost.findLastIndex = (arr, howto) => {
 	howto = _howToSeek(howto);
 	if (howto === false) return -1;
 	let index = arr.slice().reverse().findIndex(howto);
@@ -372,7 +372,7 @@ lost.list.findLastIndex = (arr, howto) => {
 	let obj2 = {x: 'bar', y: 43, z: 'orange'};
 	let obj3 = {x: 'foo', y: 42, z: 'banana'};
 	let arr1 = [obj1, obj2, obj3];
-	let index = lost.list.findLastIndex(arr1, {x: 'foo', 'y': 42});
+	let index = lost.findLastIndex(arr1, {x: 'foo', 'y': 42});
 	print(index);	// 2
 })();
 
@@ -381,7 +381,7 @@ lost.list.findLastIndex = (arr, howto) => {
 //   - keyNameOpt: #~keyName
 //     - #: asNumber (optional)
 //     - ~: descending (optional)
-lost.list.sort = (list, by) => {
+lost.sort = (list, by) => {
 	if (typeof by === 'function') {
 		return list.slice().sort(by);
 	}
@@ -414,7 +414,7 @@ lost.list.sort = (list, by) => {
 	let obj2 = {x: 'bar', y: '123'};
 	let obj3 = {x: 'qux', y: '24'};
 	let arr1 = [obj1, obj2, obj3];
-	let arr2 = lost.list.sort(arr1, (e1, e2) => (
+	let arr2 = lost.sort(arr1, (e1, e2) => (
 		e1.x > e2.x ? 1 :	// ascending
 		e1.x < e2.x ? -1 :
 		e1.y > e2.y ? -1 :	// descending
@@ -427,35 +427,35 @@ lost.list.sort = (list, by) => {
 		// {"x":"foo","y":"42"},
 		// {"x":"qux","y":"24"}
 		// ]
-	arr2 = lost.list.sort(arr1, ['~x']);	// descending
+	arr2 = lost.sort(arr1, ['~x']);	// descending
 	print(arr2);
 		// [
 		// {"x":"qux","y":"24"},
 		// {"x":"foo","y":"42"},
 		// {"x":"bar","y":"123"}
 		// ]
-	arr2 = lost.list.sort(arr1, ['y']);
+	arr2 = lost.sort(arr1, ['y']);
 	print(arr2);
 		// [
 		// {"x":"bar","y":"123"},
 		// {"x":"qux","y":"24"},
 		// {"x":"foo","y":"42"}
 		// ]
-	arr2 = lost.list.sort(arr1, ['~y']);	// descending
+	arr2 = lost.sort(arr1, ['~y']);	// descending
 	print(arr2);
 		// [
 		// {"x":"foo","y":"42"},
 		// {"x":"qux","y":"24"},
 		// {"x":"bar","y":"123"}
 		// ]
-	arr2 = lost.list.sort(arr1, ['#y']);	// asNumber
+	arr2 = lost.sort(arr1, ['#y']);	// asNumber
 	print(arr2);
 		// [
 		// {"x":"qux","y":"24"},
 		// {"x":"foo","y":"42"},
 		// {"x":"bar","y":"123"}
 		// ]
-	arr2 = lost.list.sort(arr1, ['#~y']);	// asNumber descending
+	arr2 = lost.sort(arr1, ['#~y']);	// asNumber descending
 	print(arr2);
 		// [
 		// {"x":"bar","y":"123"}
@@ -476,7 +476,7 @@ function _unique_v1(list, keys) {
 	});
 	return uniques;
 }
-lost.list.unique = (list, keys) => {
+lost.unique = (list, keys) => {
 	let uniques = [];
 	list.forEach((x) => {
 		let kvo = _partial(x, keys);
@@ -494,7 +494,7 @@ lost.list.unique = (list, keys) => {
 	let obj2 = {x: 'bar', y: 43, z: 'orange'};
 	let obj3 = {x: 'foo', y: 44, z: 'apple'};
 	let arr1 = [obj1, obj2, obj3];
-	let arr2 = lost.list.unique(arr1, ['x','z']);
+	let arr2 = lost.unique(arr1, ['x','z']);
 	print(arr2);	// [{"x":"foo","y":42,"z":"apple"},{"x":"bar","y":43,"z":"orange"}]
 })();
 
@@ -513,7 +513,7 @@ function _group_v1(list, keys) {
 	return groups;
 	//return Object.keys(groups).map((valStr) => groups[valStr]);
 }
-lost.list.group = (list, keys) => {
+lost.group = (list, keys) => {
 	let groups = [];
 	list.forEach((x) => {
 		let kvo = _partial(x, keys);
@@ -534,7 +534,7 @@ lost.list.group = (list, keys) => {
 	let obj2 = {x: 'bar', y: 43, z: 'orange'};
 	let obj3 = {x: 'foo', y: 44, z: 'apple'};
 	let arr1 = [obj1, obj2, obj3];
-	let arr2 = lost.list.group(arr1, ['x','z']);
+	let arr2 = lost.group(arr1, ['x','z']);
 	print(arr2);
 		// [
 		// [{"x":"foo","y":42,"z":"apple"},{"x":"foo","y":44,"z":"apple"}],
@@ -542,7 +542,7 @@ lost.list.group = (list, keys) => {
 		// ]
 })();
 
-lost.list.merge = (xlist, ylist, keys) => {
+lost.merge = (xlist, ylist, keys) => {
 	xlist.forEach((elem1) => {
 		let seek = _partial(elem1, keys);
 		let elem2 = _find(ylist, seek);
@@ -563,7 +563,7 @@ lost.list.merge = (xlist, ylist, keys) => {
 	let obj22 = {x: 'bar', y: 43, z: 'orange'};
 	let obj23 = {x: 'qux', y: 44, z: 'banana'};
 	let arr2 = [obj21, obj22, obj23];
-	lost.list.merge(arr1, arr2, ['x','y']);
+	lost.merge(arr1, arr2, ['x','y']);
 	print(arr1);
 		// [
 		// {"x":"foo","y":42,"z":"apple"},
@@ -572,7 +572,7 @@ lost.list.merge = (xlist, ylist, keys) => {
 		// ]
 })();
 
-lost.list.absorb = (xlist, ylist, keys, embedKeys) => {
+lost.absorb = (xlist, ylist, keys, embedKeys) => {
 	xlist.forEach((x) => {
 		let seek = _partial(x, keys);
 		let y = _find(ylist, seek);
@@ -598,7 +598,7 @@ lost.list.absorb = (xlist, ylist, keys, embedKeys) => {
 	let obj22 = {x: 'bar', y: 43, z: 'orange'};
 	let obj23 = {x: 'qux', y: 44, z: 'banana'};
 	let arr2 = [obj21, obj22, obj23];
-	lost.list.absorb(arr1, arr2, ['x','y'], ['z']);
+	lost.absorb(arr1, arr2, ['x','y'], ['z']);
 	print(arr1);
 		// [
 		// {"x":"foo","y":42,"z":"apple"},
@@ -607,7 +607,7 @@ lost.list.absorb = (xlist, ylist, keys, embedKeys) => {
 		// ]
 })();
 
-lost.list.embed = (xlist, ylist, keys, embedKey) => {
+lost.embed = (xlist, ylist, keys, embedKey) => {
 	xlist.forEach((x) => {
 		let seek = _partial(x, keys);
 		let y = _find(ylist, seek);
@@ -627,7 +627,7 @@ lost.list.embed = (xlist, ylist, keys, embedKey) => {
 	let obj22 = {x: 'bar', y: 43, z: '고사리'};
 	let obj23 = {x: 'qux', y: 44, z: '고라니'};
 	let arr2 = [obj21, obj22, obj23];
-	lost.list.embed(arr1, arr2, ['x','y'], ['u']);
+	lost.embed(arr1, arr2, ['x','y'], ['u']);
 	print(arr1);
 		// [
 		// {"x":"foo","y":42,"z":"apple","u":{"x":"foo","y":42,"z":"고구마"}},
@@ -636,7 +636,7 @@ lost.list.embed = (xlist, ylist, keys, embedKey) => {
 		// ]
 })();
 
-lost.list.slim = (list, keys) => {
+lost.slim = (list, keys) => {
 	return list.map((x) => _partial(x, keys));
 };
 
@@ -646,12 +646,12 @@ lost.list.slim = (list, keys) => {
 	let obj2 = {x: 'bar', y: 43, z: 'orange'};
 	let obj3 = {x: 'qux', y: 44, z: 'banana'};
 	let arr1 = [obj1, obj2, obj3];
-	let arr2 = lost.list.slim(arr1, ['x','y']);
+	let arr2 = lost.slim(arr1, ['x','y']);
 	print(arr2);	// [{"x":"foo","y":42},{"x":"bar","y":43},{"x":"qux","y":44}]
 })();
 
 // instead use Array.prototype.flat
-lost.list.flatten = (list) => {
+lost.flat = (list) => {
 	let flatten = [];
 	list.forEach((x) => {
 		if (Array.isArray(x)) {
@@ -668,16 +668,16 @@ lost.list.flatten = (list) => {
 };
 
 (function () {
-	section('list.flatten');
+	section('list.flat');
 	let arr1 = ['foo', 42, 'apple'];
 	let arr2 = ['bar', 43, 'orange'];
 	let arr3 = ['qux', 44, 'banana'];
 	let arr = [arr1, arr2, arr3];
-	let flatten = lost.list.flatten(arr);
+	let flatten = lost.flat(arr);
 	print(flatten);	// ["foo",42,"apple","bar",43,"orange","qux",44,"banana"]
 })();
 
-lost.list.zip = function (list1, list2) {
+lost.zip = function (list1, list2) {
 	if (list1 && list2 && list1.length && list2.length && list1.length === list2.length) {
 		// Array.from(arguments);
 		let lists = [].slice.call(arguments); // arrow function has no arguments (BUT closure's)
@@ -699,7 +699,7 @@ lost.list.zip = function (list1, list2) {
 	let arr1 = [{x: 'foo'}, {x: 'bar'}, {x: 'qux'}];
 	let arr2 = [{y: 42}, {y: 43}, {y: 44}];
 	let arr3 = [{z: '고구마'}, {z: '고사리'}, {z: '고라니'}];
-	let zipped = lost.list.zip(arr1, arr2, arr3);
+	let zipped = lost.zip(arr1, arr2, arr3);
 	print(zipped);
 		// [
 		// [{"x":"foo"},{"y":42},{"z":"고구마"}],
@@ -708,9 +708,9 @@ lost.list.zip = function (list1, list2) {
 		// ]
 })();
 
-lost.list.SHORTEST = constants.SHORTEST;
-lost.list.LONGEST = constants.LONGEST;
-lost.list.zip2 = function (length, list1, list2) {
+lost.SHORTEST = constants.SHORTEST;
+lost.LONGEST = constants.LONGEST;
+lost.zip2 = function (length, list1, list2) {
 	let lists = Array.from(arguments);
 	lists.shift(); // length
 	if (length === constants.SHORTEST) {
@@ -732,13 +732,13 @@ lost.list.zip2 = function (length, list1, list2) {
 	let arr1 = [{x: 'foo'}, {x: 'bar'}, {x: 'qux'}];
 	let arr2 = [{y: 42}, {y: 43}];
 	let arr3 = [{z: 'apple'}, {z: 'orange'}, {z: 'banana'}, {z: 'peach'}];
-	let zipped1 = lost.list.zip2(lost.list.SHORTEST, arr1, arr2, arr3);
+	let zipped1 = lost.zip2(lost.SHORTEST, arr1, arr2, arr3);
 	print(zipped1);
 		// [
 		// [{"x":"foo"},{"y":42},{"z":"apple"}],
 		// [{"x":"bar"},{"y":43},{"z":"orange"}]
 		// ]
-	let zipped2 = lost.list.zip2(lost.list.LONGEST, arr1, arr2, arr3);
+	let zipped2 = lost.zip2(lost.LONGEST, arr1, arr2, arr3);
 	print(zipped2);
 		// [
 		// [{"x":"foo"},{"y":42},{"z":"apple"}],
@@ -748,7 +748,7 @@ lost.list.zip2 = function (length, list1, list2) {
 		// ]
 })();
 
-lost.list.groupBy = (list, keys, aggregate, initialize) => {
+lost.groupBy = (list, keys, aggregate, initialize) => {
 	let groups = [];
 	list.forEach((x) => {
 		let kvo = _partial(x, keys);
@@ -768,7 +768,7 @@ lost.list.groupBy = (list, keys, aggregate, initialize) => {
 	return groups;
 };
 
-lost.list.flowDown = (outers, inners, keys, worker) => {
+lost.flowDown = (outers, inners, keys, worker) => {
 	outers.forEach((outer) => {
 		inners.forEach((inner) => {
 			if (_equal(outer, inner, keys)) {
@@ -779,7 +779,7 @@ lost.list.flowDown = (outers, inners, keys, worker) => {
 };
 
 (function () {
-	section('lost.list.groupBy');
+	section('list.groupBy');
 	const initialize = () => ({ysum: 0, zlist: []});
 	const aggregate = (group, member) => {
 		group.ysum = group.ysum + member.y;
@@ -789,7 +789,7 @@ lost.list.flowDown = (outers, inners, keys, worker) => {
 	let obj2 = {x: 'bar', y: 43, z: 'orange'};
 	let obj3 = {x: 'foo', y: 42, z: 'banana'};
 	let arr1 = [obj1, obj2, obj3];
-	let arr2 = lost.list.groupBy(arr1, ['x','y'], aggregate, initialize);
+	let arr2 = lost.groupBy(arr1, ['x','y'], aggregate, initialize);
 	print(arr2);
 		// [
 		// {"x":"foo","y":42,"ysum":84,"zlist":["apple","banana"]},
@@ -798,8 +798,8 @@ lost.list.flowDown = (outers, inners, keys, worker) => {
 })();
 
 (function () {
-	section('lost.list.groupBy');
-	section('lost.list.flowDown');
+	section('list.groupBy');
+	section('list.flowDown');
 	let list1 = [
 		{a:'A1', b:'B1', c:'C1', m:52, n:28, s:'foo', t:'apple'},
 		{a:'A1', b:'B1', c:'C2', m:80, n:21, s:'bar', t:'orange'},
@@ -819,7 +819,7 @@ lost.list.flowDown = (outers, inners, keys, worker) => {
 	const aggregate2 = (group, member) => {
 		group.mmin = group.mmin == null ? member.m : min(group.mmin, member.m);
 	};
-	let list2 = lost.list.groupBy(list1, ['a','b'], aggregate2, initialize2);
+	let list2 = lost.groupBy(list1, ['a','b'], aggregate2, initialize2);
 	print(list2);
 		// [
 		// {"a":"A1","b":"B1","mmin":38},
@@ -827,7 +827,7 @@ lost.list.flowDown = (outers, inners, keys, worker) => {
 		// {"a":"A2","b":"B3","mmin":7}
 		// ]
 	// a-b 기준 그룹 모든 멤버의 m = 찾은 a-b 기준 그룹별 최소 m
-	lost.list.flowDown(list2, list1, ['a','b'], (group, member) => {
+	lost.flowDown(list2, list1, ['a','b'], (group, member) => {
 		member.m = group.mmin;
 	});
 	print(list1);
@@ -847,7 +847,7 @@ lost.list.flowDown = (outers, inners, keys, worker) => {
 	const aggregate3 = (group, member) => {
 		group.msum = group.msum + member.mmin;
 	};
-	let list3 = lost.list.groupBy(list2, ['a'], aggregate3, initialize3);
+	let list3 = lost.groupBy(list2, ['a'], aggregate3, initialize3);
 	print(list3);
 		// [
 		// {"a":"A1","msum":94},
@@ -856,8 +856,8 @@ lost.list.flowDown = (outers, inners, keys, worker) => {
 })();
 
 (function () {
-	section('lost.list.groupBy');
-	section('lost.list.flowDown');
+	section('list.groupBy');
+	section('list.flowDown');
 	function rowspan(list, keys) {
 		list.forEach((elem) => { elem.rowspan = {}; });
 		let subk;
@@ -870,9 +870,9 @@ lost.list.flowDown = (outers, inners, keys, worker) => {
 			}
 		};
 		while (keys.length > 0) {
-			let groups = lost.list.groupBy(list, keys, aggreagte);
-			list = lost.list.unique(list, keys);
-			lost.list.flowDown(groups, list, keys, (group, member) => {
+			let groups = lost.groupBy(list, keys, aggreagte);
+			list = lost.unique(list, keys);
+			lost.flowDown(groups, list, keys, (group, member) => {
 				member.rowspan = group.rowspan;
 			});
 			subk = keys.pop();
@@ -898,26 +898,11 @@ lost.list.flowDown = (outers, inners, keys, worker) => {
 	draw(arr1);
 })();
 
-// useless unless IE
-lost.string.includes = (() => {
-	if (typeof String.prototype.includes === 'function')
-		return (s, part) => s.includes(part);
-	else
-		return (s, part) => s.indexOf(part) >= 0;
-})();
-
-(function () {
-	section('string.includes');
-	let s = 'foo,bar,qux';
-	console.assert(lost.string.includes(s, 'foo') === true);
-	console.assert(lost.string.includes(s, 'bar') === true);
-	console.assert(lost.string.includes(s, 'qux') === true);
-	console.assert(lost.string.includes(s, 'baz') === false);
-	console.assert(lost.string.includes(s, '') === true);
-})();
+////////////////////////////////////////
+// string
 
 // String.prototype.slice is there even IE
-lost.string.slice = function (s, begin, end) {
+lost.s$slice = function (s, begin, end) {
 	s = s || '';
 	let len= s.length;
 	if (arguments.length == 1) {
@@ -950,24 +935,24 @@ lost.string.slice = function (s, begin, end) {
 (function () {
 	section('string.slice');
 	let s = '12345';
-	console.assert(lost.string.slice(s) === '12345');
-	console.assert(lost.string.slice(s, 1, -1) === '234');
-	console.assert(lost.string.slice(s, -1) === '5');
-	console.assert(lost.string.slice(s, 2, 4) === '34');
-	console.assert(lost.string.slice(s, -1, 1) === '');
+	console.assert(lost.s$slice(s) === '12345');
+	console.assert(lost.s$slice(s, 1, -1) === '234');
+	console.assert(lost.s$slice(s, -1) === '5');
+	console.assert(lost.s$slice(s, 2, 4) === '34');
+	console.assert(lost.s$slice(s, -1, 1) === '');
 })();
 
 function _encomma(s) {
 	return (s || '').replace(/(\d)(?=(?:\d{3})+(?!\d))/g, '$1,');
 }
-lost.string.encomma = _encomma;
+lost.encomma = _encomma;
 
 function _decomma(s) {
 	return (s || '').replace(/,/g, '');
 }
-lost.string.decomma = _decomma;
+lost.decomma = _decomma;
 
-lost.string.padStart = (s, len, c) => {
+lost.s$padStart = (s, len, c) => {
 	if (typeof s.padStart === 'function') {
 		return c ? s.padStart(len, c) : s.padStart(len);
 	} else {
@@ -978,7 +963,7 @@ lost.string.padStart = (s, len, c) => {
 		return s;
 	}
 };
-lost.string.padEnd = (s, len, c) => {
+lost.s$padEnd = (s, len, c) => {
 	if (typeof s.padEnd === 'function') {
 		return c ? s.padEnd(len, c) : s.padEnd(len);
 	} else {
@@ -989,9 +974,12 @@ lost.string.padEnd = (s, len, c) => {
 		return s;
 	}
 };
-lost.string.repeat = (s, n) => {
+lost.s$repeat = (s, n) => {
 	return new Array(n).fill(s).join('');
 }
+
+////////////////////////////////////////
+// number
 
 function _max(...nums) {
 	return nums.reduce((max, num) => {
@@ -999,11 +987,11 @@ function _max(...nums) {
 		return max < num ? num : max;
 	});
 }
-lost.number.max = _max;
+lost.max = _max;
 
 (function () {
 	section('number.max');
-	let max = lost.number.max('42', '123', '24');
+	let max = lost.max('42', '123', '24');
 	print(max);	// 123
 })();
 
@@ -1013,15 +1001,15 @@ function _min(...nums) {
 		return num < min ? num : min;
 	});
 }
-lost.number.min = _min;
+lost.min = _min;
 
 (function () {
 	section('number.min');
-	let min = lost.number.min('42', '12.3', '24,000');
+	let min = lost.min('42', '12.3', '24,000');
 	print(min);	// 12.3
 })();
 
-lost.number.from = (x) => {
+lost.number = (x) => {
 	if (typeof x === 'number') {
 		return x;
 	}
@@ -1031,14 +1019,14 @@ lost.number.from = (x) => {
 
 (function () {
 	section('number.from');
-	console.assert(lost.number.from('1,234,567.89') === 1234567.89);
-	console.assert(lost.number.from('-1,234,567.89') === -1234567.89);
+	console.assert(lost.number('1,234,567.89') === 1234567.89);
+	console.assert(lost.number('-1,234,567.89') === -1234567.89);
 })();
 
 // opt : option (object or string for zero)
 // - zero : alternative to 0 (default is '')
 // - comma : true for encomma (default is true)
-lost.number.stringify = (n, opt) => {
+lost.stringify = (n, opt) => {
 	let zero = '';
 	let comma = true;
 	if (typeof opt === 'string') {
@@ -1064,16 +1052,19 @@ lost.number.stringify = (n, opt) => {
 (function () {
 	section('number.from');
 	section('number.stringify');
-	console.assert(lost.number.stringify(lost.number.from('20') * 10000) === '200,000');
-	console.assert(lost.number.stringify(lost.number.from('80000000') / 10000) === '8,000');
+	console.assert(lost.stringify(lost.number('20') * 10000) === '200,000');
+	console.assert(lost.stringify(lost.number('80000000') / 10000) === '8,000');
 })();
 
+////////////////////////////////////////
+// util
+
 // until not void
-lost.util.unv = (...args) => args.find((arg) => !!arg);
+lost.unv = (...args) => args.find((arg) => !!arg);
 
 (function () {
 	section('util.nvo');
-	let res = lost.util.unv(undefined, null, 0, '', 42);
+	let res = lost.unv(undefined, null, 0, '', 42);
 	console.assert(res === 42);
 })();
 
