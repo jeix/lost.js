@@ -73,13 +73,13 @@ function _partialExcept(from, keys) {
 	});
 	return to;
 }
-lost.negativePartial = _partialExcept;
+lost.except = _partialExcept;
 
 (function () {
-	section('object.negativePartial');
+	section('object.except');
 	let obj1 = {x: 'foo', y: 42, z: '고구마'};
 	obj1 = {u: 'banana', v: 'orange', ...obj1};
-	let obj2 = lost.negativePartial(obj1, ['x','y']);
+	let obj2 = lost.except(obj1, ['x','y']);
 	print(obj2);	// {"u":"banana","v":"orange","z":"고구마"}
 })();
 
@@ -291,6 +291,38 @@ function _howToSeek(howto) {
 	return false;
 }
 lost.howToSeek = _howToSeek;
+
+(function () {
+	section('list.howToSeek');
+	let obj1 = {x: 'foo', y: 42};
+	let obj2 = {x: 'bar', y: 43};
+	let obj3 = {x: 'qux', y: 44};
+	let arr1 = [obj1, obj2, obj3];
+	let seek, arr2;
+	seek = lost.howToSeek((_) => _.y != 42);
+	arr2 = arr1.filter(seek);
+	print(arr2);
+		// [{"x":"bar","y":43},{"x":"qux","y":44}]
+	seek = lost.howToSeek([['x','foo'], ['y',42]]);
+	arr2 = arr1.filter(seek);
+	print(arr2);
+		// [{"x":"foo","y":42}]
+	seek = lost.howToSeek({x:'foo', y:42});
+	arr2 = arr1.filter(seek);
+	print(arr2);
+		// [{"x":"foo","y":42}]
+	/* TODO
+	seek = lost.howToSeek({'~x':'foo'}); // not equal
+	arr2 = lost.filter(arr1, seek);
+	print(filtered1);
+	seek = lost.howToSeek([{x:'foo'}, {x:'bar'}]); // in (or)
+	arr2 = lost.filter(arr1, seek);
+	print(filtered1);
+	seek = lost.howToSeek([{x:'foo', y:42}, {x:'qux', y:44}]); // or
+	arr2 = lost.filter(arr1, seek);
+	print(filtered1);
+	//*/
+})();
 
 function _filter(arr, howto) {
 	howto = _howToSeek(howto);
@@ -677,6 +709,101 @@ lost.flat = (list) => {
 	print(flatten);	// ["foo",42,"apple","bar",43,"orange","qux",44,"banana"]
 })();
 
+lost.a$max = (list, key) => {
+	if (list.length === 0) return null;
+	if (typeof key === 'undefined') {
+		//return list.reduce((max, x) => max >= x ? max : x);
+		return _max.apply(null, list);
+	} else {
+		let asNumber = key.includes('#') ? true : false;
+		key = key.replace(/[#]/, '');
+		let initial = list[0][key];
+		if (asNumber) {
+			/*
+			return list.reduce((max, x) => {
+				max = _asNumber(max);
+				x = _asNumber(x[key]);
+				return max >= x ? max : x;
+			}, initial);
+			//*/
+			return _max.apply(null, list.map((x) => _asNumber(x[key])));
+		} else {
+			return list.reduce((max, x) => max >= x[key] ? max : x[key], initial);
+		}
+	}
+};
+
+(function () {
+	section('list.max');
+	let max = lost.a$max([-12, 42, 123]);
+	print(max);		// 123
+	let obj11 = {x: 'foo', y: -12};
+	let obj12 = {x: 'bar', y: 42};
+	let obj13 = {x: 'qux', y: 123};
+	let arr1 = [obj11, obj12, obj13];
+	let maxY = lost.a$max(arr1, '#y');
+	print(maxY);	// 123
+})();
+
+lost.a$min = (list, key) => {
+	if (list.length === 0) return null;
+	if (typeof key === 'undefined') {
+		//return list.reduce((min, x) => min <= x ? min : x);
+		return _min.apply(null, list);
+	} else {
+		let asNumber = key.includes('#') ? true : false;
+		key = key.replace(/[#]/, '');
+		let initial = list[0][key];
+		if (asNumber) {
+			/*
+			return list.reduce((min, x) => {
+				min = _asNumber(min);
+				x = _asNumber(x[key]);
+				return min <= x ? min : x;
+			}, initial);
+			//*/
+			return _min.apply(null, list.map((x) => _asNumber(x[key])));
+		} else {
+			return list.reduce((min, x) => min <= x[key] ? min : x[key], initial);
+		}
+	}
+};
+
+(function () {
+	section('list.min');
+	let min = lost.a$min([-12, 42, 123]);
+	print(min);		// -12
+	let obj11 = {x: 'foo', y: -12};
+	let obj12 = {x: 'bar', y: 42};
+	let obj13 = {x: 'qux', y: 123};
+	let arr1 = [obj11, obj12, obj13];
+	let minY = lost.a$min(arr1, '#y');
+	print(minY);	// -12
+})();
+
+lost.a$sum = (list, key) => {
+	if (list.length === 0) return null;
+	if (typeof key === 'undefined') {
+		return list.reduce((sum, x) => sum += x, 0);
+	} else {
+		return list.reduce((sum, x) => {
+			return sum += _asNumber(x[key]);
+		}, 0);
+	}
+};
+
+(function () {
+	section('list.sum');
+	let sum = lost.a$sum([-12, 42, 123]);
+	print(sum);		// 153
+	let obj11 = {x: 'foo', y: -12};
+	let obj12 = {x: 'bar', y: 42};
+	let obj13 = {x: 'qux', y: 123};
+	let arr1 = [obj11, obj12, obj13];
+	let sumY = lost.a$sum(arr1, 'y');
+	print(sumY);	// 153
+})();
+
 lost.zip = function (list1, list2) {
 	if (list1 && list2 && list1.length && list2.length && list1.length === list2.length) {
 		// Array.from(arguments);
@@ -748,6 +875,7 @@ lost.zip2 = function (length, list1, list2) {
 		// ]
 })();
 
+lost.GROUP_BY_INIT = 'none';
 lost.groupBy = (list, keys, aggregate, initialize) => {
 	let groups = [];
 	list.forEach((x) => {
@@ -755,9 +883,14 @@ lost.groupBy = (list, keys, aggregate, initialize) => {
 		let group = _find(groups, kvo);
 		if (group === false) {
 			if (typeof initialize === 'function') {
-				group = _mixin(kvo, initialize());
-			} else {
-				group = _mixin({}, x);
+				group = _mixin(kvo, initialize(x));
+			} else if (typeof initialize === 'undefined') {
+				//group = _mixin({}, x);
+				group = {...x};
+			} else if (typeof initialize === 'object') {
+				group = _mixin(kvo, initialize);
+			} else if (initialize === lost.GROUP_BY_INIT) {
+				group = kvo;
 			}
 			//group._list_ = [];
 			groups.push(group);
@@ -898,6 +1031,72 @@ lost.flowDown = (outers, inners, keys, worker) => {
 	draw(arr1);
 })();
 
+lost.GROUP_BY_MAX = (key) => (group, member) => {
+	group[key] = group[key] == null ? member[key] : _max(group[key], member[key]);
+};
+
+lost.GROUP_BY_MIN = (key) => (group, member) => {
+	group[key] = group[key] == null ? member[key] : _min(group[key], member[key]);
+};
+
+lost.GROUP_BY_SUM = (key) => (group, member) => {
+	group[key] = group[key] == null ? member[key] : group[key] + member[key];
+};
+
+lost.GROUP_BY_COUNT = (key) => (group, member) => {
+	group[key] = group[key] == null ? 1 : group[key] + 1;
+};
+
+lost.DESCRIBE = (key) => (group, member) => {
+	if (!group.hasOwnProperty('_count_')) {
+		group._count_ = 0;
+		group._sum_ = 0;
+		group._min_ = null;
+		group._max_ = null;
+	}
+	let val = member[key];
+	group._count_++;
+	group._sum_ += val;
+	group._min_ = group._min_ == null ? val : _min(group._min_, val);
+	group._max_ = group._max_ == null ? val : _max(group._max_, val);
+};
+
+(function () {
+	section('list.groupBy');
+	let list1 = [
+		{a:'A1', b:'B1', c:'C1', m:52, n:28, s:'foo', t:'apple'},
+		{a:'A1', b:'B1', c:'C2', m:80, n:21, s:'bar', t:'orange'},
+		{a:'A1', b:'B1', c:'C3', m:38, n:73, s:'baz', t:'banana'},
+		{a:'A1', b:'B2', c:'C4', m:56, n:71, s:'qux', t:'apple'},
+		{a:'A1', b:'B2', c:'C5', m:76, n:35, s:'foo', t:'orange'},
+		{a:'A1', b:'B2', c:'C6', m:59, n:72, s:'bar', t:'banana'},
+		{a:'A2', b:'B3', c:'C7', m:57, n: 6 ,s:'baz', t:'apple'},
+		{a:'A2', b:'B3', c:'C8', m:88, n:56, s:'qux', t:'orange'},
+		{a:'A2', b:'B3', c:'C9', m: 7, n: 0, s:'foo', t:'banana'},
+	];
+	let list2 = lost.groupBy(list1, ['a','b'], lost.GROUP_BY_MIN('m'), lost.GROUP_BY_INIT);
+	print(list2);
+		// [
+		// {"a":"A1","b":"B1","m":38},
+		// {"a":"A1","b":"B2","m":56},
+		// {"a":"A2","b":"B3","m":7}
+		// ]
+	let list3 = lost.groupBy(list1, ['a','b'], lost.GROUP_BY_SUM('m'), {m:0});
+	print(list3);
+		// [
+		// {"a":"A1","b":"B1","m":170},
+		// {"a":"A1","b":"B2","m":191},
+		// {"a":"A2","b":"B3","m":152}
+		// ]
+	let list4 = lost.groupBy(list1, ['a','b'], lost.DESCRIBE('m'), lost.GROUP_BY_INIT);
+	print(list4);
+		// [
+		// {"a":"A1","b":"B1","_count_":3,"_sum_":170,"_min_":38,"_max_":80},
+		// {"a":"A1","b":"B2","_count_":3,"_sum_":191,"_min_":56,"_max_":76},
+		// {"a":"A2","b":"B3","_count_":3,"_sum_":152,"_min_":7,"_max_":88}
+		// ]
+})();
+
 ////////////////////////////////////////
 // string
 
@@ -1009,13 +1208,14 @@ lost.min = _min;
 	print(min);	// 12.3
 })();
 
-lost.number = (x) => {
+function _asNumber(x) {
 	if (typeof x === 'number') {
 		return x;
 	}
 	let s = _decomma(x || '');
 	return Number(s);
-};
+}
+lost.number = _asNumber;
 
 (function () {
 	section('number.from');
