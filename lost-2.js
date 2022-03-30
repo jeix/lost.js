@@ -267,6 +267,25 @@ lost.nvo = function (src, path, dflt) {
 ////////////////////////////////////////
 // array
 
+function _fillZero(size) {
+	if (Array.prototype.fill) {
+		return new Array(size).fill(0);
+	}
+	let arr = [];
+	for (let i = 0; i < size; i++) {
+		arr.push(i);
+	}
+	return arr;
+}
+lost.array = _fillZero;
+
+(function () {
+	section('array.fillZero');
+	let arr1 = lost.array(3).map((_, ix) => ix + 1);
+	print(arr1);	// [1,2,3]
+})();
+
+
 // howto
 // - (x) => { ... }
 // - {x, y, z}
@@ -709,76 +728,66 @@ lost.flat = (list) => {
 	print(flatten);	// ["foo",42,"apple","bar",43,"orange","qux",44,"banana"]
 })();
 
-lost.a$max = (list, key) => {
+lost.findMax = (list, key) => {
 	if (list.length === 0) return null;
 	if (typeof key === 'undefined') {
-		//return list.reduce((max, x) => max >= x ? max : x);
-		return _max.apply(null, list);
+		return list.reduce((max, x) => max >= x ? max : x);
 	} else {
 		let asNumber = key.includes('#') ? true : false;
 		key = key.replace(/[#]/, '');
-		let initial = list[0][key];
 		if (asNumber) {
-			/*
-			return list.reduce((max, x) => {
-				max = _asNumber(max);
-				x = _asNumber(x[key]);
-				return max >= x ? max : x;
-			}, initial);
-			//*/
-			return _max.apply(null, list.map((x) => _asNumber(x[key])));
+			return list.reduce((withMax, x) => {
+				max = _asNumber(withMax[key]);
+				val = _asNumber(x[key]);
+				return max >= val ? withMax : x;
+			});
 		} else {
-			return list.reduce((max, x) => max >= x[key] ? max : x[key], initial);
+			return list.reduce((withMax, x) => withMax[key] >= x[key] ? withMax : x);
 		}
 	}
 };
 
 (function () {
-	section('list.max');
-	let max = lost.a$max([-12, 42, 123]);
-	print(max);		// 123
+	section('list.findMax');
+	let max = lost.findMax([-12, 42, 123]);
+	print(max);			// 123
 	let obj11 = {x: 'foo', y: -12};
 	let obj12 = {x: 'bar', y: 42};
 	let obj13 = {x: 'qux', y: 123};
 	let arr1 = [obj11, obj12, obj13];
-	let maxY = lost.a$max(arr1, '#y');
-	print(maxY);	// 123
+	let withMaxY = lost.findMax(arr1, '#y');
+	print(withMaxY);	// {"x":"qux","y":123}
 })();
 
-lost.a$min = (list, key) => {
+lost.findMin = (list, key) => {
 	if (list.length === 0) return null;
 	if (typeof key === 'undefined') {
-		//return list.reduce((min, x) => min <= x ? min : x);
-		return _min.apply(null, list);
+		return list.reduce((min, x) => min <= x ? min : x);
 	} else {
 		let asNumber = key.includes('#') ? true : false;
 		key = key.replace(/[#]/, '');
-		let initial = list[0][key];
 		if (asNumber) {
-			/*
-			return list.reduce((min, x) => {
-				min = _asNumber(min);
-				x = _asNumber(x[key]);
-				return min <= x ? min : x;
-			}, initial);
-			//*/
-			return _min.apply(null, list.map((x) => _asNumber(x[key])));
+			return list.reduce((withMin, x) => {
+				min = _asNumber(withMin[key]);
+				val = _asNumber(x[key]);
+				return min <= val ? withMin : x;
+			});
 		} else {
-			return list.reduce((min, x) => min <= x[key] ? min : x[key], initial);
+			return list.reduce((withMin, x) => withMin <= x[key] ? withMin : x[key]);
 		}
 	}
 };
 
 (function () {
-	section('list.min');
-	let min = lost.a$min([-12, 42, 123]);
-	print(min);		// -12
+	section('list.findMin');
+	let min = lost.findMin([-12, 42, 123]);
+	print(min);			// -12
 	let obj11 = {x: 'foo', y: -12};
 	let obj12 = {x: 'bar', y: 42};
 	let obj13 = {x: 'qux', y: 123};
 	let arr1 = [obj11, obj12, obj13];
-	let minY = lost.a$min(arr1, '#y');
-	print(minY);	// -12
+	let withMinY = lost.findMin(arr1, '#y');
+	print(withMinY);	// {"x":"foo","y":-12}
 })();
 
 lost.a$sum = (list, key) => {
@@ -786,9 +795,7 @@ lost.a$sum = (list, key) => {
 	if (typeof key === 'undefined') {
 		return list.reduce((sum, x) => sum += x, 0);
 	} else {
-		return list.reduce((sum, x) => {
-			return sum += _asNumber(x[key]);
-		}, 0);
+		return list.reduce((sum, x) => sum += _asNumber(x[key]), 0);
 	}
 };
 
