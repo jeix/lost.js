@@ -156,6 +156,11 @@ lost.toArray = (from, mode, keys) => {
 	print(arr3);	// [{"k":"x","v":"foo"},{"k":"y","v":42},{"k":"z","v":"고구마"}]
 })();
 
+function _deepCopy(x) {
+	return JSON.parse(JSON.stringify(x));
+}
+lost.deepCopy = _deepCopy;
+
 function _toString(x) {
 	return JSON.stringify(x);
 }
@@ -270,12 +275,13 @@ lost.nvo = function (src, path, dflt) {
 function _fillZero(size) {
 	if (Array.prototype.fill) {
 		return new Array(size).fill(0);
+	} else {
+		let arr = [];
+		for (let i = 0; i < size; i++) {
+			arr.push(0);
+		}
+		return arr;
 	}
-	let arr = [];
-	for (let i = 0; i < size; i++) {
-		arr.push(i);
-	}
-	return arr;
 }
 lost.array = _fillZero;
 
@@ -285,6 +291,24 @@ lost.array = _fillZero;
 	print(arr1);	// [1,2,3]
 })();
 
+// _.times(3).forEach((ix) => { ... })
+// _.times(3).some((ix) => { ... })
+// _.times(3).every((ix) => { ... })
+function _times(n) {
+	let arr = [];
+	for (let i = 0; i < n; i++) {
+		arr.push(i);
+	}
+	return arr;
+}
+lost.repeat = _times;
+
+(function () {
+	section('array.times');
+	let arr1 = [];
+	lost.repeat(3).forEach((ix) => arr1.push(ix + 1));
+	print(arr1);	// [1,2,3]
+})();
 
 // howto
 // - (x) => { ... }
@@ -528,6 +552,7 @@ function _unique_v1(list, keys) {
 	return uniques;
 }
 lost.unique = (list, keys) => {
+	if (typeof keys === 'string') keys = keys.split(',');
 	let uniques = [];
 	list.forEach((x) => {
 		let kvo = _partial(x, keys);
@@ -565,6 +590,7 @@ function _group_v1(list, keys) {
 	//return Object.keys(groups).map((valStr) => groups[valStr]);
 }
 lost.group = (list, keys) => {
+	if (typeof keys === 'string') keys = keys.split(',');
 	let groups = [];
 	list.forEach((x) => {
 		let kvo = _partial(x, keys);
@@ -590,6 +616,59 @@ lost.group = (list, keys) => {
 		// [
 		// [{"x":"foo","y":42,"z":"apple"},{"x":"foo","y":44,"z":"apple"}],
 		// [{"x":"bar","y":43,"z":"orange"}]
+		// ]
+})();
+
+function _adjacent(list, keys) {
+	if (typeof keys === 'string') keys = keys.split(',');
+	let groups = [];
+	list.forEach((x) => {
+		let kvo = _partial(x, keys);
+		let group = groups[groups.length-1] || {};
+		if (!_equal(group, kvo, keys)) {
+			group = kvo;
+			group._list_ = [];
+			groups.push(group);
+		}
+		group._list_.push(x);
+	});
+	return groups.map((group) => group._list_);
+}
+lost.adjacent = _adjacent;
+
+(function () {
+	section('list.adjacent');
+	let obj1 = {x: 'foo', y: 42, z: 'apple'};
+	let obj2 = {x: 'foo', y: 43, z: 'apple'};
+	let obj3 = {x: 'bar', y: 44, z: 'orange'};
+	let obj4 = {x: 'foo', y: 45, z: 'apple'};
+	let arr1 = [obj1, obj2, obj3, obj4];
+	let arr2 = lost.adjacent(arr1, ['x','z']);
+	print(arr2);
+		// [
+		// [{"x":"foo","y":42,"z":"apple"},{"x":"foo","y":43,"z":"apple"}],
+		// [{"x":"bar","y":44,"z":"orange"}],
+		// [{"x":"foo","y":45,"z":"apple"}]
+		// ]
+})();
+
+lost.slim = (list, keys) => {
+	if (typeof keys === 'string') keys = keys.split(',');
+	return list.map((x) => _partial(x, keys));
+};
+
+(function () {
+	section('list.slim');
+	let obj1 = {x: 'foo', y: 42, z: 'apple'};
+	let obj2 = {x: 'bar', y: 43, z: 'orange'};
+	let obj3 = {x: 'foo', y: 44, z: 'apple'};
+	let arr1 = [obj1, obj2, obj3];
+	let arr2 = lost.group(arr1, ['x','y']);
+	print(arr2);
+		// [
+		// {"x":"foo","y":42},
+		// {"x":"bar","y":43},
+		// {"x":"qux","y":44}
 		// ]
 })();
 
@@ -624,6 +703,7 @@ lost.merge = (xlist, ylist, keys) => {
 })();
 
 lost.absorb = (xlist, ylist, keys, embedKeys) => {
+	if (typeof keys === 'string') keys = keys.split(',');
 	xlist.forEach((x) => {
 		let seek = _partial(x, keys);
 		let y = _find(ylist, seek);
@@ -659,6 +739,7 @@ lost.absorb = (xlist, ylist, keys, embedKeys) => {
 })();
 
 lost.embed = (xlist, ylist, keys, embedKey) => {
+	if (typeof keys === 'string') keys = keys.split(',');
 	xlist.forEach((x) => {
 		let seek = _partial(x, keys);
 		let y = _find(ylist, seek);
@@ -688,6 +769,7 @@ lost.embed = (xlist, ylist, keys, embedKey) => {
 })();
 
 lost.slim = (list, keys) => {
+	if (typeof keys === 'string') keys = keys.split(',');
 	return list.map((x) => _partial(x, keys));
 };
 
@@ -793,7 +875,7 @@ lost.findMin = (list, key) => {
 lost.a$sum = (list, key) => {
 	if (list.length === 0) return null;
 	if (typeof key === 'undefined') {
-		return list.reduce((sum, x) => sum += x, 0);
+		return list.reduce((sum, x) => sum += (x || 0), 0);
 	} else {
 		return list.reduce((sum, x) => sum += _asNumber(x[key]), 0);
 	}
@@ -842,9 +924,7 @@ lost.zip = function (list1, list2) {
 		// ]
 })();
 
-lost.SHORTEST = constants.SHORTEST;
-lost.LONGEST = constants.LONGEST;
-lost.zip2 = function (length, list1, list2) {
+function _zip2(length, list1, list2) {
 	let lists = Array.from(arguments);
 	lists.shift(); // length
 	if (length === constants.SHORTEST) {
@@ -858,8 +938,16 @@ lost.zip2 = function (length, list1, list2) {
 			zip.push(list[ix] || null);
 		});
 	});
+	zips = [];
+	_times(length).forEach((ix) => {
+		let zip = lists.map((list) => list[ix] || null);
+		zips.push(zip);
+	});
 	return zips;
 };
+lost.SHORTEST = constants.SHORTEST;
+lost.LONGEST = constants.LONGEST;
+lost.zip2 = _zip2;
 
 (function () {
 	section('list.zip2');
@@ -884,6 +972,7 @@ lost.zip2 = function (length, list1, list2) {
 
 lost.GROUP_BY_INIT = 'none';
 lost.groupBy = (list, keys, aggregate, initialize) => {
+	if (typeof keys === 'string') keys = keys.split(',');
 	let groups = [];
 	list.forEach((x) => {
 		let kvo = _partial(x, keys);
@@ -909,6 +998,7 @@ lost.groupBy = (list, keys, aggregate, initialize) => {
 };
 
 lost.flowDown = (outers, inners, keys, worker) => {
+	if (typeof keys === 'string') keys = keys.split(',');
 	outers.forEach((outer) => {
 		inners.forEach((inner) => {
 			if (_equal(outer, inner, keys)) {
@@ -1158,31 +1248,127 @@ function _decomma(s) {
 }
 lost.decomma = _decomma;
 
-lost.s$padStart = (s, len, c) => {
-	if (typeof s.padStart === 'function') {
-		return c ? s.padStart(len, c) : s.padStart(len);
-	} else {
-		c = c || ' ';
-		while (s.length < len) {
-			s = c + s;
-		}
-		return s;
+function _padStart(s, len, c) {
+	c = typeof c === 'undefined' ? ' ' : c;
+	while (s.length < len) {
+		s = c + s;
 	}
-};
-lost.s$padEnd = (s, len, c) => {
-	if (typeof s.padEnd === 'function') {
-		return c ? s.padEnd(len, c) : s.padEnd(len);
-	} else {
-		c = c || ' ';
-		while (s.length < len) {
-			s = s + c;
-		}
-		return s;
-	}
-};
-lost.s$repeat = (s, n) => {
-	return new Array(n).fill(s).join('');
+	return s;
 }
+lost.s$padStart = (function () {
+	if (typeof String.prototype.padStart === 'function') {
+		return function (s, len, c) {
+			//let args = [].slice.call(arguments);
+			let args = Array.from(arguments);
+			args.shift(); // remove s
+			return s.padStart.apply(s, args);
+		}
+	} else {
+		return _padStart;
+	}
+})();
+function _padEnd(s, len, c) {
+	c = typeof c === 'undefined' ? ' ' : c;
+	while (s.length < len) {
+		s = s + c;
+	}
+	return s;
+}
+lost.s$padEnd = (function () {
+	if (typeof String.prototype.padEnd === 'function') {
+		return function (s, len, c) {
+			//let args = [].slice.call(arguments);
+			let args = Array.from(arguments);
+			args.shift(); // remove s
+			return s.padEnd.apply(s, args);
+		}
+	} else {
+		return _padEnd;
+	}
+})();
+function _repeat(s, n) {
+	let t = s;
+	while (t.length < len) {
+		t = t + s;
+	}
+	return t;
+}
+lost.s$repeat = (function () {
+	if (typeof String.prototype.repeat === 'function') {
+		return function (s, n) {
+			//return new Array(n).fill(s).join('');
+			return s.repeat(n);
+		}
+	} else {
+		return _repeat;
+	}
+})();
+
+(function () {
+	section('string.padStart');
+	section('string.padEnd');
+	section('string.repeat');
+	let s = '123';
+	console.assert(lost.s$padStart(s, 5) === '  123');
+	console.assert(lost.s$padStart(s, 5, '0') === '00123');
+	console.assert(lost.s$padEnd(s, 5) === '123  ');
+	console.assert(lost.s$padEnd(s, 5, '0') === '12300');
+	console.assert(lost.s$repeat('*', 5) === '*****');
+})();
+
+////////////////////////////////////////
+// date
+
+function _dateFrom(x) {
+	const s = (x || '').replace(/-/g, '');
+	const y = Number(s.slice(0, 4));
+	const m = Number(s.slice(4, 6));
+	const d = Number(s.slice(6, 8));
+	let dt = new Date();
+	dt.setFullYear(y);
+	dt.setMonth(m-1);
+	dt.setDate(d);
+	return dt;
+}
+lost.date = _dateFrom;
+
+function _dateClone(dt) {
+	const ts = dt.getTime();
+	dt = new Date();
+	dt.setTime(ts);
+	return dt;
+}
+
+function _addYear(dt, y) {
+	dt = _dateClone(dt);
+	dt.setFullYear(dt.getFullYear() + y);
+	return dt;
+}
+lost.addYear = _addYear;
+function _addMonth(dt, m) {
+	dt = _dateClone(dt);
+	dt.setMonth(dt.getMonth() + m);
+	return dt;
+}
+lost.addMonth = _addMonth;
+function _addDate(dt, d) {
+	dt = _dateClone(dt);
+	dt.setDate(dt.getDate() + d);
+	return dt;
+}
+lost.addDate = _addDate;
+
+function _dateToString(dt, fmt) {
+	fmt = fmt || 'yyyy-mm-dd';
+	let y = dt.getFullYear();
+	let m = dt.getMonth() + 1;
+	m = (m < 10 ? '0' : '') + m;
+	let d = dt.getDate();
+	d = (d < 10 ? '0' : '') + d;
+	const s = fmt.replace('yyyy', y).replace('mm', m).replace('dd', d);
+	return s;
+}
+lost.d2s = _dateToString;
 
 ////////////////////////////////////////
 // number
@@ -1234,23 +1420,18 @@ lost.number = _asNumber;
 // - zero : alternative to 0 (default is '')
 // - comma : true for encomma (default is true)
 lost.stringify = (n, opt) => {
-	let zero = '';
-	let comma = true;
-	if (typeof opt === 'string') {
-		zero = opt;
-	} else if (typeof opt === 'object') {
-		zero = typeof opt.zero !== 'undefined' ? opt.zero : zero;
-		comma = typeof opt.comma !== 'undefined' ? opt.comma : comma;
-	}
+	const dfltOpt = {zero: '', comma: true};
+	if (typeof opt === 'string') opt = {zero: opt};
+	opt = _mixin(dfltOpt, opt || {});
 	let _n = Number(n || '');
 	if (_n === 0) {
-		return zero;
+		return opt.zero;
 	}
 	if (isNaN(_n)) {
 		return n;
 	}
 	let s = String(_n);
-	if (comma === true) {
+	if (opt.comma === true) {
 		return _encomma(s);
 	}
 	return s;
