@@ -1,5 +1,5 @@
 
-(function () {
+(function (ctx) {
 
 function section(s) {
 	console.log('##', s);
@@ -1239,7 +1239,8 @@ lost.s$slice = function (s, begin, end) {
 })();
 
 function _encomma(s) {
-	return (s || '').replace(/(\d)(?=(?:\d{3})+(?!\d))/g, '$1,');
+	//return (s || '').replace(/(\d)(?=(?:\d{3})+(?!\d))/g, '$1,');
+	return (s || '').replace(/(?<!\.(?:\d*))(\d)(?=(?:\d{3})+(?!\d))/g, '$1,');
 }
 lost.encomma = _encomma;
 
@@ -1320,6 +1321,9 @@ lost.s$repeat = (function () {
 // date
 
 function _dateFrom(x) {
+	if (x instanceof Date) {
+		return _dateClone(x);
+	}
 	const s = (x || '').replace(/-/g, '');
 	const y = Number(s.slice(0, 4));
 	const m = Number(s.slice(4, 6));
@@ -1370,6 +1374,40 @@ function _dateToString(dt, fmt) {
 }
 lost.d2s = _dateToString;
 
+function JustDate(x) {
+	if (!(this instanceof JustDate)) {
+		return new JustDate(x);
+	}
+	this.dt = _dateFrom(x);
+}
+JustDate.prototype = {
+	addYear(y) {
+		this.dt = _addYear(this.dt, y);
+		return this;
+	},
+	addMonth(m) {
+		this.dt = _addMonth(this.dt, m);
+		return this;
+	},
+	addDate(d) {
+		this.dt = _addDate(this.dt, d);
+		return this;
+	},
+	value() {
+		return _dateClone(this.dt);
+	},
+	stringify(fmt) {
+		return _dateToString(this.dt, fmt);
+	},
+};
+lost.date2 = (x) => new JustDate(x);
+
+(function () {
+	section('date.from');
+	section('date.stringify');
+	console.assert(lost.date2('2022-04-22').addMonth(-3).stringify('yyyy.mm.dd') === '2022.01.22');
+})();
+
 ////////////////////////////////////////
 // number
 
@@ -1419,7 +1457,7 @@ lost.number = _asNumber;
 // opt : option (object or string for zero)
 // - zero : alternative to 0 (default is '')
 // - comma : true for encomma (default is true)
-lost.stringify = (n, opt) => {
+function _numberStringify(n, opt) {
 	const dfltOpt = {zero: '', comma: true};
 	if (typeof opt === 'string') opt = {zero: opt};
 	opt = _mixin(dfltOpt, opt || {});
@@ -1435,13 +1473,64 @@ lost.stringify = (n, opt) => {
 		return _encomma(s);
 	}
 	return s;
-};
+}
+lost.n2s = _numberStringify;
 
 (function () {
 	section('number.from');
 	section('number.stringify');
-	console.assert(lost.stringify(lost.number('20') * 10000) === '200,000');
-	console.assert(lost.stringify(lost.number('80000000') / 10000) === '8,000');
+	console.assert(lost.n2s(lost.number('20') * 10000) === '200,000');
+	console.assert(lost.n2s(lost.number('80000000') / 10000) === '8,000');
+	console.assert(lost.n2s(lost.number(Math.PI)) === String(Math.PI));
+})();
+
+function JustNumber(x) {
+	if (!(this instanceof JustNumber)) {
+		return new JustNumber(x);
+	}
+	this.n = _asNumber(x);
+}
+JustNumber.prototype = {
+	add(n) {
+		this.n += n;
+		return this;
+	},
+	subtract(n) {
+		this.n -= n;
+		return this;
+	},
+	multiply(n) {
+		this.n *= n;
+		return this;
+	},
+	divide(n) {
+		if (n) {
+			this.n /= n;
+		}
+		return this;
+	},
+	value() {
+		return this.n;
+	},
+	stringify(opt) {
+		return _numberStringify(this.n, opt);
+	},
+};
+lost.number2 = (x) => new JustNumber(x);
+
+(function () {
+	section('number.alt.from');
+	console.assert(lost.number2('1,234,567.89').value() === 1234567.89);
+	console.assert(lost.number2('-1,234,567.89').value() === -1234567.89);
+})();
+
+(function () {
+	section('number.alt.from');
+	section('number.alt.stringify');
+	console.assert(lost.number2('1000').stringify() === '1,000');
+	console.assert(lost.number2('0').stringify('-') === '-');
+	console.assert(lost.number2('20').multiply(10000).stringify() === '200,000');
+	console.assert(lost.number2('80000000').divide(10000).stringify() === '8,000');
 })();
 
 ////////////////////////////////////////
@@ -1456,4 +1545,8 @@ lost.unv = (...args) => args.find((arg) => !!arg);
 	console.assert(res === 42);
 })();
 
-})();
+////////////////////////////////////////
+
+ctx.lost = lost;
+
+})(window);
