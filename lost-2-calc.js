@@ -117,49 +117,67 @@ CrudeCalc.prototype = {
     },
 };
 
-console.assert(CrudeCalc().number('4.5').value() === 4.5);
-console.assert(CrudeCalc().number('0.03').value() === 0.03);
+function print(...args) {
+	//args = args.map((x) => JSON.stringify(x));
+	console.log.apply(null, args);
+}
 
-console.assert(CrudeCalc().number('4.5').add('0.03').value() === 4.53);
-console.assert(CrudeCalc().number('4.5').subtract('0.03').value() === 4.47);
-console.assert(CrudeCalc().number('4.5').multiply('0.03').value() === 0.135);
-console.assert(CrudeCalc().number('4.5').divide('0.03').value() === 150);
+const assert = console.assert;
 
-console.assert(CrudeCalc().number('0.03').add('4.5').value() === 4.53);
-console.assert(CrudeCalc().number('0.03').subtract('4.5').value() === -4.47);
-console.assert(CrudeCalc().number('0.03').multiply('4.5').value() === 0.135);
-console.assert(CrudeCalc().number('0.03').divide('4.5').value() === 0.006666666666666667);
+assert(CrudeCalc().number('4.5').value() === 4.5);
+assert(CrudeCalc().number('0.03').value() === 0.03);
 
-console.assert(CrudeCalc().number('4.5').add('0.3').value() === 4.8);
-console.assert(CrudeCalc().number('4.5').subtract('0.3').value() === 4.2);
-console.assert(CrudeCalc().number('4.5').multiply('0.3').value() === 1.35);
-console.assert(CrudeCalc().number('4.5').divide('0.3').value() === 15);
+assert(CrudeCalc().number('4.5').add('0.03').value() === 4.53);
+assert(CrudeCalc().number('4.5').subtract('0.03').value() === 4.47);
+assert(CrudeCalc().number('4.5').multiply('0.03').value() === 0.135);
+assert(CrudeCalc().number('4.5').divide('0.03').value() === 150);
 
-console.assert(CrudeCalc().number('0.3').add('4.5').value() === 4.8);
-console.assert(CrudeCalc().number('0.3').subtract('4.5').value() === -4.2);
-console.assert(CrudeCalc().number('0.3').multiply('4.5').value() === 1.35);
-console.assert(CrudeCalc().number('0.3').divide('4.5').value() == 0.06666666666666667);
+assert(CrudeCalc().number('0.03').add('4.5').value() === 4.53);
+assert(CrudeCalc().number('0.03').subtract('4.5').value() === -4.47);
+assert(CrudeCalc().number('0.03').multiply('4.5').value() === 0.135);
+assert(CrudeCalc().number('0.03').divide('4.5').value() === 0.006666666666666667);
 
-console.assert(CrudeCalc().number('4.5').add('3').value() === 7.5);
-console.assert(CrudeCalc().number('4.5').subtract('3').value() === 1.5);
-console.assert(CrudeCalc().number('4.5').multiply('3').value() === 13.5);
-console.assert(CrudeCalc().number('4.5').divide('3').value() === 1.5);
+assert(CrudeCalc().number('4.5').add('0.3').value() === 4.8);
+assert(CrudeCalc().number('4.5').subtract('0.3').value() === 4.2);
+assert(CrudeCalc().number('4.5').multiply('0.3').value() === 1.35);
+assert(CrudeCalc().number('4.5').divide('0.3').value() === 15);
 
-console.assert(CrudeCalc().number('3').add('4.5').value() === 7.5);
-console.assert(CrudeCalc().number('3').subtract('4.5').value() === -1.5);
-console.assert(CrudeCalc().number('3').multiply('4.5').value() === 13.5);
-console.assert(CrudeCalc().number('3').divide('4.5').value() === 0.6666666666666667);
+assert(CrudeCalc().number('0.3').add('4.5').value() === 4.8);
+assert(CrudeCalc().number('0.3').subtract('4.5').value() === -4.2);
+assert(CrudeCalc().number('0.3').multiply('4.5').value() === 1.35);
+assert(CrudeCalc().number('0.3').divide('4.5').value() == 0.06666666666666667);
 
-console.assert(CrudeCalc().number('0.0045').multiply('100').value() === 0.45);
-console.assert(CrudeCalc().number('0.0045').multiply('10').value() === 0.045);
-console.assert(CrudeCalc().number('0.0045').multiply('1').value() === 0.0045);
-console.assert(CrudeCalc().number('0.0045').multiply('0').value() === 0);
-console.assert(CrudeCalc().number('0.0045').multiply('0.1').value() === 0.00045);
-console.assert(CrudeCalc().number('0.0045').multiply('0.01').value() === 0.000045);
-console.assert(CrudeCalc().number('0.0045').divide('100').value() === 0.000045);
-console.assert(CrudeCalc().number('0.0045').divide('10').value() === 0.00045);
-console.assert(CrudeCalc().number('0.0045').divide('1').value() === 0.0045);
-console.assert(CrudeCalc().number('0.0045').divide('0.1').value() === 0.045);
-console.assert(CrudeCalc().number('0.0045').divide('0.01').value() === 0.45);
+assert(CrudeCalc().number('4.5').add('3').value() === 7.5);
+assert(CrudeCalc().number('4.5').subtract('3').value() === 1.5);
+assert(CrudeCalc().number('4.5').multiply('3').value() === 13.5);
+assert(CrudeCalc().number('4.5').divide('3').value() === 1.5);
+
+assert(CrudeCalc().number('3').add('4.5').value() === 7.5);
+assert(CrudeCalc().number('3').subtract('4.5').value() === -1.5);
+assert(CrudeCalc().number('3').multiply('4.5').value() === 13.5);
+assert(CrudeCalc().number('3').divide('4.5').value() === 0.6666666666666667);
+
+assert(CrudeCalc().number('0.0045').multiply('100').value() === 0.45);
+assert(CrudeCalc().number('0.0045').multiply('10').value() === 0.045);
+assert(CrudeCalc().number('0.0045').multiply('1').value() === 0.0045);
+assert(CrudeCalc().number('0.0045').multiply('0').value() === 0);
+assert(CrudeCalc().number('0.0045').multiply('0.1').value() === 0.00045);
+assert(CrudeCalc().number('0.0045').multiply('0.01').value() === 0.000045);
+assert(CrudeCalc().number('0.0045').divide('100').value() === 0.000045);
+assert(CrudeCalc().number('0.0045').divide('10').value() === 0.00045);
+assert(CrudeCalc().number('0.0045').divide('1').value() === 0.0045);
+assert(CrudeCalc().number('0.0045').divide('0.1').value() === 0.045);
+assert(CrudeCalc().number('0.0045').divide('0.01').value() === 0.45);
+
+print('0.1 + 0.2 =', 0.1 + 0.2);
+print('CrudeCalc().number(0.1).add(0.2).value() =', CrudeCalc().number(0.1).add(0.2).value());
+print('0.11 - 0.1 =', 0.11 - 0.1);
+print('CrudeCalc().number(0.11).subtract(0.1).value() =', CrudeCalc().number(0.11).subtract(0.1).value());
+print('0.1 * 1.1 =', 0.1 * 1.1);
+print('CrudeCalc().number(0.1).multiply(1.1).value() =', CrudeCalc().number(0.1).multiply(1.1).value());
+print('0.3 / 3 =', 0.3 / 3);
+print('CrudeCalc().number(0.3).divide(3).value() =', CrudeCalc().number(0.3).divide(3).value());
+print('3.3 / 0.33 =', 3.3 / 0.33);
+print('CrudeCalc().number(3.3).divide(0.33).value() =', CrudeCalc().number(3.3).divide(0.33).value());
 
 })();
