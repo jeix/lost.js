@@ -364,11 +364,6 @@ function _adjacent(list, keys) {
 }
 lost.adjacent = _adjacent;
 
-lost.slim = (list, keys) => {
-	if (typeof keys === 'string') keys = keys.split(',');
-	return list.map((x) => _partial(x, keys));
-};
-
 lost.merge = (xlist, ylist, keys) => {
 	xlist.forEach((elem1) => {
 		let seek = _partial(elem1, keys);
@@ -780,18 +775,14 @@ lost.date2 = (x) => new JustDate(x);
 // number
 
 function _max(...nums) {
-	return nums.reduce((max, num) => {
-		num = Number(_decomma(String(num)));
-		return max < num ? num : max;
-	});
+	return nums.map((num) => Number(_decomma(String(num))))
+				.reduce((max, num) => max < num ? num : max);
 }
 lost.max = _max;
 
 function _min(...nums) {
-	return nums.reduce((min, num) => {
-		num = Number(_decomma(String(num)));
-		return num < min ? num : min;
-	});
+	return nums.map((num) => Number(_decomma(String(num))))
+				.reduce((min, num) => num < min ? num : min);
 }
 lost.min = _min;
 

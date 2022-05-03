@@ -4,9 +4,11 @@ function section(s) {
 }
 
 function print(...args) {
-	args = args.map((x) => JSON.stringify(x));
+	args = args.map((x) => jsonify(x));
 	console.log.apply(null, args);
 }
+
+const jsonify = JSON.stringify;
 
 const assert = console.assert;
 
@@ -17,7 +19,7 @@ const assert = console.assert;
 	section('object.partial');
 	let obj1 = {x: 'foo', y: 42, z: '고구마'};
 	let obj2 = lost.partial(obj1, ['x','y']);
-	print(obj2);	// {"x":"foo","y":42}
+	assert(jsonify(obj2) === '{"x":"foo","y":42}');
 })();
 
 (function () {
@@ -25,31 +27,31 @@ const assert = console.assert;
 	let obj1 = {x: 'foo', y: 42, z: '고구마'};
 	obj1 = {u: 'banana', v: 'orange', ...obj1};
 	let obj2 = lost.except(obj1, ['x','y']);
-	print(obj2);	// {"u":"banana","v":"orange","z":"고구마"}
+	assert(jsonify(obj2) === '{"u":"banana","v":"orange","z":"고구마"}');
 })();
 
 (function () {
 	section('object.fromArray');
 	let arr1 = ['x', 'foo', 'y', 42, 'z', '고구마'];
 	let obj1 = lost.fromArray(arr1);
-	print(obj1);	// {"x":"foo","y":42,"z":"고구마"}
+	assert(jsonify(obj1) === '{"x":"foo","y":42,"z":"고구마"}');
 	let arr2 = [['x', 'foo'], ['y', 42], ['z', '고구마']];
 	let obj2 = lost.fromArray(arr2);
-	print(obj2);	// {"x":"foo","y":42,"z":"고구마"}
+	assert(jsonify(obj2) === '{"x":"foo","y":42,"z":"고구마"}');
 	let arr3 = [{k:'x', v:'foo'}, {k:'y', v:42}, {k:'z', v:'고구마'}];
 	let obj3 = lost.fromArray(arr3);
-	print(obj3);	// {"x":"foo","y":42,"z":"고구마"}
+	assert(jsonify(obj3) === '{"x":"foo","y":42,"z":"고구마"}');
 })();
 
 (function () {
 	section('object.toArray');
 	let obj1 = {x: 'foo', y: 42, z: '고구마'};
 	let arr1 = lost.toArray(obj1, lost.FLAT);
-	print(arr1);	// ["x","foo","y",42,"z","고구마"]
+	assert(jsonify(arr1) === '["x","foo","y",42,"z","고구마"]');
 	let arr2 = lost.toArray(obj1, lost.NEST, ['x','y']);
-	print(arr2);	// [["x","foo"],["y",42]]
+	assert(jsonify(arr2) === '[["x","foo"],["y",42]]');
 	let arr3 = lost.toArray(obj1, lost.OBJE);
-	print(arr3);	// [{"k":"x","v":"foo"},{"k":"y","v":42},{"k":"z","v":"고구마"}]
+	assert(jsonify(arr3) === '[{"k":"x","v":"foo"},{"k":"y","v":42},{"k":"z","v":"고구마"}]');
 })();
 
 (function () {
@@ -68,35 +70,35 @@ const assert = console.assert;
 	const pane = {};
 	let val;
 	val = lost.nvo(pane, PATH, '0');
-	assert(val === '0', toString(pane) + '::' + val);
+	assert(val === '0', jsonify(pane) + '::' + jsonify(val));
 	pane.Foo = {};
 	val = lost.nvo(pane, PATH, '0');
-	assert(val === '0', toString(pane) + '::' + val);
+	assert(val === '0', jsonify(pane) + '::' + jsonify(val));
 	pane.Foo.Bar = [];
 	val = lost.nvo(pane, PATH, '0');
-	assert(val === '0', toString(pane) + '::' + val);
+	assert(val === '0', jsonify(pane) + '::' + jsonify(val));
 	pane.Foo.Bar[0] = {};
 	val = lost.nvo(pane, PATH, '0');
-	assert(val === '0', toString(pane) + '::' + val);
+	assert(val === '0', jsonify(pane) + '::' + jsonify(val));
 	pane.Foo.Bar[0].Qux = '';
 	val = lost.nvo(pane, PATH, '0');
-	assert(val === '', toString(pane) + '::' + val);
+	assert(val === '', jsonify(pane) + '::' + jsonify(val));
 	pane.Foo.Bar[0].Qux = '4';
 	val = lost.nvo(pane, PATH, '0');
-	assert(val === '4', toString(pane) + '::' + val);
+	assert(val === '4', jsonify(pane) + '::' + jsonify(val));
 
 	pane.Foo.Bar = '';
 	val = lost.nvo(pane, PATH, '0');
-	assert(val === '0', toString(pane) + '::' + val);
+	assert(val === '0', jsonify(pane) + '::' + jsonify(val));
 	pane.Foo.Bar = 0;
 	val = lost.nvo(pane, PATH, '0');
-	assert(val === '0', toString(pane) + '::' + val);
+	assert(val === '0', jsonify(pane) + '::' + jsonify(val));
 	pane.Foo.Bar = true;
 	val = lost.nvo(pane, PATH, '0');
-	assert(val === '0', toString(pane) + '::' + val);
+	assert(val === '0', jsonify(pane) + '::' + jsonify(val));
 	pane.Foo.Bar = false;
 	val = lost.nvo(pane, PATH, '0');
-	assert(val === '0', toString(pane) + '::' + val);
+	assert(val === '0', jsonify(pane) + '::' + jsonify(val));
 })();
 
 ////////////////////////////////////////
@@ -105,14 +107,14 @@ const assert = console.assert;
 (function () {
 	section('array.fillZero');
 	let arr1 = lost.array(3).map((_, ix) => ix + 1);
-	print(arr1);	// [1,2,3]
+	assert(jsonify(arr1) === '[1,2,3]');
 })();
 
 (function () {
 	section('array.times');
 	let arr1 = [];
 	lost.repeat(3).forEach((ix) => arr1.push(ix + 1));
-	print(arr1);	// [1,2,3]
+	assert(jsonify(arr1) === '[1,2,3]');
 })();
 
 (function () {
@@ -124,16 +126,13 @@ const assert = console.assert;
 	let seek, arr2;
 	seek = lost.howToSeek((_) => _.y != 42);
 	arr2 = arr1.filter(seek);
-	print(arr2);
-		// [{"x":"bar","y":43},{"x":"qux","y":44}]
+	assert(jsonify(arr2) === '[{"x":"bar","y":43},{"x":"qux","y":44}]');
 	seek = lost.howToSeek([['x','foo'], ['y',42]]);
 	arr2 = arr1.filter(seek);
-	print(arr2);
-		// [{"x":"foo","y":42}]
+	assert(jsonify(arr2) === '[{"x":"foo","y":42}]');
 	seek = lost.howToSeek({x:'foo', y:42});
 	arr2 = arr1.filter(seek);
-	print(arr2);
-		// [{"x":"foo","y":42}]
+	assert(jsonify(arr2) === '[{"x":"foo","y":42}]');
 	/* TODO
 	seek = lost.howToSeek({'~x':'foo'}); // not equal
 	arr2 = lost.filter(arr1, seek);
@@ -154,7 +153,7 @@ const assert = console.assert;
 	let obj3 = {x: 'qux', y: 44};
 	let arr1 = [obj1, obj2, obj3];
 	let filtered = lost.filter(arr1, [['x','bar'],['y',43]]);
-	print(filtered);	// [{"x":"bar","y":43}]
+	assert(jsonify(filtered) === '[{"x":"bar","y":43}]');
 })();
 
 (function () {
@@ -164,7 +163,7 @@ const assert = console.assert;
 	let obj3 = {x: 'qux', y: 44};
 	let arr1 = [obj1, obj2, obj3];
 	let found = lost.find(arr1, {x: 'bar', 'y': 43});
-	print(found);	// {"x":"bar","y":43}
+	assert(jsonify(found) === '{"x":"bar","y":43}');
 })();
 
 (function () {
@@ -174,7 +173,7 @@ const assert = console.assert;
 	let obj3 = {x: 'foo', y: 42, z: 'banana'};
 	let arr1 = [obj1, obj2, obj3];
 	let found = lost.findLast(arr1, (item) => item.x === 'foo' && item.y === 42);
-	print(found);	// {"x":"bar","y":43,"z":"orange"}
+	assert(jsonify(found) === '{"x":"foo","y":42,"z":"banana"}');
 })();
 
 (function () {
@@ -184,7 +183,7 @@ const assert = console.assert;
 	let obj3 = {x: 'qux', y: 44};
 	let arr1 = [obj1, obj2, obj3];
 	let index = lost.findIndex(arr1, ['x','bar','y',43]);
-	print(index);	// 1
+	assert(index === 1);
 })();
 
 (function () {
@@ -194,7 +193,7 @@ const assert = console.assert;
 	let obj3 = {x: 'foo', y: 42, z: 'banana'};
 	let arr1 = [obj1, obj2, obj3];
 	let index = lost.findLastIndex(arr1, {x: 'foo', 'y': 42});
-	print(index);	// 2
+	assert(index === 2);
 })();
 
 (function () {
@@ -294,21 +293,6 @@ const assert = console.assert;
 })();
 
 (function () {
-	section('list.slim');
-	let obj1 = {x: 'foo', y: 42, z: 'apple'};
-	let obj2 = {x: 'bar', y: 43, z: 'orange'};
-	let obj3 = {x: 'foo', y: 44, z: 'apple'};
-	let arr1 = [obj1, obj2, obj3];
-	let arr2 = lost.group(arr1, ['x','y']);
-	print(arr2);
-		// [
-		// {"x":"foo","y":42},
-		// {"x":"bar","y":43},
-		// {"x":"qux","y":44}
-		// ]
-})();
-
-(function () {
 	section('list.merge');
 	let obj11 = {x: 'foo', y: 42};
 	let obj12 = {x: 'bar', y: 43};
@@ -372,7 +356,7 @@ const assert = console.assert;
 	let obj3 = {x: 'qux', y: 44, z: 'banana'};
 	let arr1 = [obj1, obj2, obj3];
 	let arr2 = lost.slim(arr1, ['x','y']);
-	print(arr2);	// [{"x":"foo","y":42},{"x":"bar","y":43},{"x":"qux","y":44}]
+	assert(jsonify(arr2) === '[{"x":"foo","y":42},{"x":"bar","y":43},{"x":"qux","y":44}]');
 })();
 
 (function () {
@@ -382,43 +366,43 @@ const assert = console.assert;
 	let arr3 = ['qux', 44, 'banana'];
 	let arr = [arr1, arr2, arr3];
 	let flatten = lost.flat(arr);
-	print(flatten);	// ["foo",42,"apple","bar",43,"orange","qux",44,"banana"]
+	assert(jsonify(flatten) === '["foo",42,"apple","bar",43,"orange","qux",44,"banana"]');
 })();
 
 (function () {
 	section('list.findMax');
 	let max = lost.findMax([-12, 42, 123]);
-	print(max);			// 123
+	assert(max === 123);
 	let obj11 = {x: 'foo', y: -12};
 	let obj12 = {x: 'bar', y: 42};
 	let obj13 = {x: 'qux', y: 123};
 	let arr1 = [obj11, obj12, obj13];
 	let withMaxY = lost.findMax(arr1, '#y');
-	print(withMaxY);	// {"x":"qux","y":123}
+	assert(jsonify(withMaxY) === '{"x":"qux","y":123}');
 })();
 
 (function () {
 	section('list.findMin');
 	let min = lost.findMin([-12, 42, 123]);
-	print(min);			// -12
+	assert(min === -12);
 	let obj11 = {x: 'foo', y: -12};
 	let obj12 = {x: 'bar', y: 42};
 	let obj13 = {x: 'qux', y: 123};
 	let arr1 = [obj11, obj12, obj13];
 	let withMinY = lost.findMin(arr1, '#y');
-	print(withMinY);	// {"x":"foo","y":-12}
+	assert(jsonify(withMinY) === '{"x":"foo","y":-12}');
 })();
 
 (function () {
 	section('list.sum');
 	let sum = lost.a$sum([-12, 42, 123]);
-	print(sum);		// 153
+	assert(sum === 153);
 	let obj11 = {x: 'foo', y: -12};
 	let obj12 = {x: 'bar', y: 42};
 	let obj13 = {x: 'qux', y: 123};
 	let arr1 = [obj11, obj12, obj13];
 	let sumY = lost.a$sum(arr1, 'y');
-	print(sumY);	// 153
+	assert(sumY === 153);
 })();
 
 (function () {
@@ -669,13 +653,13 @@ const assert = console.assert;
 (function () {
 	section('number.max');
 	let max = lost.max('42', '123', '24');
-	print(max);	// 123
+	assert(max === 123);
 })();
 
 (function () {
 	section('number.min');
 	let min = lost.min('42', '12.3', '24,000');
-	print(min);	// 12.3
+	assert(min === 12.3);
 })();
 
 (function () {
