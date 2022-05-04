@@ -192,11 +192,15 @@ lost.array = _fillZero;
 // _.times(3).some((ix) => { ... })
 // _.times(3).every((ix) => { ... })
 function _times(n) {
-	let arr = [];
-	for (let i = 0; i < n; i++) {
-		arr.push(i);
+	if (Array.from) {
+		return Array.from({length: n}, (_, ix) => ix);
+	} else {
+		let arr = [];
+		for (let i = 0; i < n; i++) {
+			arr.push(i);
+		}
+		return arr;
 	}
-	return arr;
 }
 lost.repeat = _times;
 
