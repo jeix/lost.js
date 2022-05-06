@@ -860,7 +860,8 @@ lost.number2 = (x) => new JustNumber(x);
 
 ////////////////////////////////////////
 
-lost.mear = (x) => {
+// 그저 {숫자|날짜}
+lost.merely = (x) => {
 	if (x instanceof Date) {
 		return lost.date2(x);
 	} else if (typeof x === 'number') {

@@ -642,9 +642,10 @@ const assert = console.assert;
 })();
 
 (function () {
+	section('merely.date');
     let dt = lost.date('2022-04-22');
-    assert(lost.mear(dt).addMonth(-3).it().toJSON() === lost.date('2022-01-22').toJSON());
-    assert(lost.mear(dt).addMonth(-3).stringify('yyyy.mm.dd') === '2022.01.22');
+    assert(lost.merely(dt).addMonth(-3).it().toJSON() === lost.date('2022-01-22').toJSON());
+    assert(lost.merely(dt).addMonth(-3).stringify('yyyy.mm.dd') === '2022.01.22');
 })();
 
 ////////////////////////////////////////
@@ -692,9 +693,10 @@ const assert = console.assert;
 })();
 
 (function () {
+	section('merely.number');
     let n = lost.number('1,000');
-    assert(lost.mear(n).multiply(100).it() === 100_000);
-    assert(lost.mear(n).multiply(100).stringify() === '100,000');
+    assert(lost.merely(n).multiply(100).it() === 100_000);
+    assert(lost.merely(n).multiply(100).stringify() === '100,000');
 })();
 
 ////////////////////////////////////////
