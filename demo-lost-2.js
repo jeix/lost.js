@@ -521,7 +521,9 @@ const assert = console.assert;
 	section('list.groupBy');
 	section('list.flowDown');
 	function rowspan(list, keys) {
-		list.forEach((elem) => { elem.rowspan = {}; });
+		list.forEach((elem) => {
+			elem.rowspan = {};
+		});
 		let subk;
 		let aggreagte = (group, member) => {
 			let k = keys.slice(-1)[0];
