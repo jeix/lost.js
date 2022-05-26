@@ -176,7 +176,7 @@
 	};;
 
 	const narrowBy = (...args) => {
-		if (args. length == 0) {
+		if (args.length == 0) {
 			return (list) => list.slice();
 		} else if (typeof args[0] === 'function') {
 			let f = args[0];
@@ -227,7 +227,7 @@
 
 	// 정렬 방법을 입력받아 정렬 함수를 리턴
 	const sortBy = (...args) => {
-		if (args. length == 0) {
+		if (args.length == 0) {
 			return (list) => list.slice().sort();
 		} else if (typeof args[0] === 'function') {
 			let f = args[0];
