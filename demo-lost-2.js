@@ -113,7 +113,7 @@ const assert = console.assert;
 (function () {
 	section('array.times');
 	let arr1 = [];
-	lost.repeat(3).forEach((ix) => arr1.push(ix + 1));
+	lost.times(3).forEach((ix) => arr1.push(ix + 1));
 	assert(jsonify(arr1) === '[1,2,3]');
 })();
 
@@ -635,6 +635,8 @@ const assert = console.assert;
     dt = lost.addMonth(dt, -3);
     dt = lost.d2s(dt, 'yyyy.mm.dd');
     assert(dt === '2022.01.22');
+	//
+	assert(lost.date() instanceof Date);
 })();
 
 (function () {

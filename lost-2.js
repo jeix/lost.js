@@ -202,7 +202,7 @@ function _times(n) {
 		return arr;
 	}
 }
-lost.repeat = _times;
+lost.times = _times;
 
 // howto
 // - (x) => { ... }
@@ -624,12 +624,12 @@ function _encomma(s) {
 	//return (s || '').replace(/(\d)(?=(?:\d{3})+(?!\d))/g, '$1,');
 	return (s || '').replace(/(?<!\.(?:\d*))(\d)(?=(?:\d{3})+(?!\d))/g, '$1,');
 }
-lost.encomma = _encomma;
+//lost.encomma = _encomma;
 
 function _decomma(s) {
 	return (s || '').replace(/,/g, '');
 }
-lost.decomma = _decomma;
+//lost.decomma = _decomma;
 
 function _padStart(s, len, c) {
 	c = typeof c === 'undefined' ? ' ' : c;
@@ -699,9 +699,9 @@ function _dateFrom(x) {
 	const m = Number(s.slice(4, 6));
 	const d = Number(s.slice(6, 8));
 	let dt = new Date();
-	dt.setFullYear(y);
-	dt.setMonth(m-1);
-	dt.setDate(d);
+	y && dt.setFullYear(y);
+	m && dt.setMonth(m-1);
+	d && dt.setDate(d);
 	return dt;
 }
 lost.date = _dateFrom;
