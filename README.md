@@ -74,12 +74,9 @@ list, object, string, tool
     - it() : n
     - value() : n
     - stringify(opt) : s
-    - xxx(n)
-    - xxx(n)
-    - xxx(n)
   - lost.merely(n) : JustNumber
 - utility
-  - lost.util.unv(...args) — until not void — like nvl
+  - lost.unv(...args) — until not void — like nvl
 
 ## lost-fp.js
 
