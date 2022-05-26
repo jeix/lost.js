@@ -395,13 +395,13 @@ const assert = console.assert;
 
 (function () {
 	section('list.sum');
-	let sum = lost.a$sum([-12, 42, 123]);
+	let sum = lost.sum([-12, 42, 123]);
 	assert(sum === 153);
 	let obj11 = {x: 'foo', y: -12};
 	let obj12 = {x: 'bar', y: 42};
 	let obj13 = {x: 'qux', y: 123};
 	let arr1 = [obj11, obj12, obj13];
-	let sumY = lost.a$sum(arr1, 'y');
+	let sumY = lost.sum(arr1, 'y');
 	assert(sumY === 153);
 })();
 

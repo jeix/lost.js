@@ -467,10 +467,10 @@ lost.findMin = (list, key) => {
 	}
 };
 
-lost.a$sum = (list, key) => {
+lost.sum = (list, key) => {
 	if (list.length === 0) return null;
 	if (typeof key === 'undefined') {
-		return list.reduce((sum, x) => sum += (x || 0), 0);
+		return list.reduce((sum, x) => sum += _asNumber(x || 0), 0);
 	} else {
 		return list.reduce((sum, x) => sum += _asNumber(x[key]), 0);
 	}
