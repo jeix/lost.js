@@ -193,6 +193,8 @@ lost.array = _fillZero;
 // _.times(3).every((ix) => { ... })
 function _times(n) {
 	if (Array.from) {
+		//return new Array(n).fill(0).map((_, ix) => ix);
+		//return Array.from({length: n}).map((_, ix) => ix);
 		return Array.from({length: n}, (_, ix) => ix);
 	} else {
 		let arr = [];
