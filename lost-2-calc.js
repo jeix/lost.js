@@ -1,4 +1,6 @@
 
+// require lost-2.js
+
 (function () {
 
 class MaybeNumber {
