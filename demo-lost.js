@@ -40,7 +40,7 @@ function print(...args) {
 	console.assert(val === '0');
 	pane.Foo.Bar[0].Qux = '';
 	val = lost.object.nvo(pane, PATH, '0');
-	console.assert(val === '0');
+	console.assert(val === '');
 	pane.Foo.Bar[0].Qux = '4';
 	val = lost.object.nvo(pane, PATH, '0');
 	console.assert(val === '4');

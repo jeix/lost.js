@@ -652,6 +652,21 @@ const assert = console.assert;
     assert(lost.merely(dt).addMonth(-3).stringify('yyyy.mm.dd') === '2022.01.22');
 })();
 
+(function () {
+	section('date.bom');
+	section('date.eom');
+	assert(lost.date2('2023-04-28').getBoM().stringify() === '2023-04-01');
+	assert(lost.date2('2023-04-28').getEoM().stringify() === '2023-04-30');
+})();
+
+(function () {
+	section('date.validate');
+	assert(lost.is.date('2023-02-29') == false);
+	assert(lost.is.date('2024-02-29') == true);
+	assert(lost.is.date('2023.04.31') == false);
+	assert(lost.is.date('20230430') == true);
+})();
+
 ////////////////////////////////////////
 // number
 
@@ -701,6 +716,13 @@ const assert = console.assert;
     let n = lost.number('1,000');
     assert(lost.merely(n).multiply(100).it() === 100_000);
     assert(lost.merely(n).multiply(100).stringify() === '100,000');
+})();
+
+(function () {
+	section('number.validate');
+	assert(lost.is.number('1,000') == true);
+	assert(lost.is.number('-1,234,567.89') == true);
+	assert(lost.is.number('1,ooo') == false);
 })();
 
 ////////////////////////////////////////

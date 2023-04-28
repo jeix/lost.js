@@ -14,6 +14,7 @@ const lost = {
 	string: {},
 	number: {},
 	util: {},
+	is: {},
 };
 
 const constants = {
@@ -734,6 +735,25 @@ function _addDate(dt, d) {
 }
 lost.addDate = _addDate;
 
+function _setYear(dt, y) {
+	dt = _dateClone(dt);
+	dt.setFullYear(y);
+	return dt;
+}
+lost.setYear = _setYear;
+function _setMonth(dt, m) {
+	dt = _dateClone(dt);
+	dt.setMonth(m-1);
+	return dt;
+}
+lost.setMonth = _setMonth;
+function _setDate(dt, d) {
+	dt = _dateClone(dt);
+	dt.setDate(d);
+	return dt;
+}
+lost.setDate = _setDate;
+
 function _dateToString(dt, fmt) {
 	fmt = fmt || 'yyyy-mm-dd';
 	let y = dt.getFullYear();
@@ -765,6 +785,27 @@ JustDate.prototype = {
 		this.dt = _addDate(this.dt, d);
 		return this;
 	},
+	setYear(y) {
+		this.dt = _setYear(this.dt, y);
+		return this;
+	},
+	setMonth(m) {
+		this.dt = _setMonth(this.dt, m);
+		return this;
+	},
+	setDate(d) {
+		this.dt = _setDate(this.dt, d);
+		return this;
+	},
+	getBoM() {
+		const bom = _setDate(this.dt, 1);
+		return new JustDate(bom);
+	},
+	getEoM() {
+		const nextMonth = _addMonth(this.dt, 1);
+		const eom = _setDate(nextMonth, 0);
+		return new JustDate(eom);
+	},
 	it() {
 		return _dateClone(this.dt);
 	},
@@ -776,6 +817,32 @@ JustDate.prototype = {
 	},
 };
 lost.date2 = (x) => new JustDate(x);
+
+function _isValidDate(x) {
+	if (x instanceof Date || x instanceof JustDate) {
+		return true;
+	}
+	if (typeof x === 'string') {
+		const re = /^(\d{4})[-\.]?(\d{2})[-\.]?(\d{2})$/;
+		const list = re.exec(x);
+		if (list == null) return false;
+		const y = Number(list[1]);
+		const m = Number(list[2]);
+		const d = Number(list[3]);
+		if (y === 0 || m === 0 || d === 0) return false;
+		if (m > 12) return false;
+		let eom = 31;
+		if ([4,6,9,11].includes(m)) eom = 30;
+		else if (m === 2) {
+			eom = (y % 400 === 0) ? 29
+				: (y % 100 === 0) ? 28
+				: (y % 4 === 0) ? 29
+				: 28;
+		}
+		return eom >= d;
+	}
+}
+lost.is.date = _isValidDate;
 
 ////////////////////////////////////////
 // number
@@ -859,6 +926,14 @@ JustNumber.prototype = {
 	},
 };
 lost.number2 = (x) => new JustNumber(x);
+
+function _isValidNumber(x) {
+	if (x instanceof Number || x instanceof JustNumber) {
+		return true;
+	}
+	return !isNaN(_asNumber(x));
+}
+lost.is.number = _isValidNumber;
 
 ////////////////////////////////////////
 

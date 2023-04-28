@@ -54,7 +54,8 @@ function print(...args) {
 const assert = console.assert;
 
 assert(numCalc('+', 40, 2) == 42);
-assert(numCalc('+', 40.234, 2.123) == 42.357); console.assert(numCalc('+', 240.5, 50) == 290.5);
+assert(numCalc('+', 40.234, 2.123) == 42.357);
+assert(numCalc('+', 240.5, 50) == 290.5);
 
 assert(numCalc('-', 40, 2) == 38);
 assert(numCalc('-', 40.234, 2.123) == 38.111);
