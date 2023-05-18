@@ -673,12 +673,16 @@ const assert = console.assert;
 	section('date.eom');
 	assert(lost.date2('2023-04-28').getBoM().stringify() === '2023-04-01');
 	assert(lost.date2('2023-04-28').getEoM().stringify() === '2023-04-30');
+	//
 	assert(lost.date2('2023-05-31').addMonth(-1).stringify() === '2023-04-30');
 	assert(lost.date2('2023-05-31').addMonth(1).stringify() === '2023-06-30');
 	assert(lost.date2('2023-05-31').addMonth(-1).getBoM().stringify() === '2023-04-01');
 	assert(lost.date2('2023-05-31').addMonth(-1).getEoM().stringify() === '2023-04-30');
 	assert(lost.date2('2023-05-31').addMonth(1).getBoM().stringify() === '2023-06-01');
 	assert(lost.date2('2023-05-31').addMonth(1).getEoM().stringify() === '2023-06-30');
+	//
+	assert(lost.date2('2023-05-31').setMonth(4).stringify() === '2023-04-30');
+	assert(lost.date2('2023-05-31').setMonth(6).stringify() === '2023-06-30');
 })();
 
 (function () {

@@ -752,9 +752,15 @@ function _setYear(dt, y) {
 }
 lost.setYear = _setYear;
 function _setMonth(dt, m) {
-	dt = _dateClone(dt);
-	dt.setMonth(m-1);
-	return dt;
+	m = m - dt.getMonth() - 1;
+	return _addMonth(dt, m);
+	//dt = _dateClone(dt);
+	//const dd = dt.getDate();
+	//dt.setDate(1);
+	//dt.setMonth(m-1);
+	//const eom = _getEoM(dt).getDate();
+	//dt.setDate(dd > eom ? eom : dd);
+	//return dt;
 }
 lost.setMonth = _setMonth;
 function _setDate(dt, d) {
