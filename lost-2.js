@@ -9,11 +9,16 @@
 
 const lost = {
 	object: {},
-	array: {},
+	//array: {},
 	list: {},
-	string: {},
-	number: {},
+	//string: {},
+	//date: {},
+	//number: {},
 	util: {},
+	a: {},
+	s: {},
+	dt: {},
+	n: {},
 	is: {},
 };
 
@@ -593,7 +598,7 @@ lost.DESCRIBE = (key) => (group, member) => {
 // string
 
 // String.prototype.slice is there even IE
-lost.s$slice = function (s, begin, end) {
+lost.s.slice = function (s, begin, end) {
 	s = s || '';
 	let len= s.length;
 	if (arguments.length == 1) {
@@ -624,15 +629,16 @@ lost.s$slice = function (s, begin, end) {
 };
 
 function _encomma(s) {
+	//(typeof s === 'number') && (s = String(s));
 	//return (s || '').replace(/(\d)(?=(?:\d{3})+(?!\d))/g, '$1,');
 	return (s || '').replace(/(?<!\.(?:\d*))(\d)(?=(?:\d{3})+(?!\d))/g, '$1,');
 }
-//lost.encomma = _encomma;
+lost.s.encomma = _encomma;
 
 function _decomma(s) {
 	return (s || '').replace(/,/g, '');
 }
-//lost.decomma = _decomma;
+lost.s.decomma = _decomma;
 
 function _padStart(s, len, c) {
 	c = typeof c === 'undefined' ? ' ' : c;
@@ -641,7 +647,7 @@ function _padStart(s, len, c) {
 	}
 	return s;
 }
-lost.s$padStart = (function () {
+lost.s.padStart = (function () {
 	if (typeof String.prototype.padStart === 'function') {
 		return function (s, len, c) {
 			//let args = [].slice.call(arguments);
@@ -660,7 +666,7 @@ function _padEnd(s, len, c) {
 	}
 	return s;
 }
-lost.s$padEnd = (function () {
+lost.s.padEnd = (function () {
 	if (typeof String.prototype.padEnd === 'function') {
 		return function (s, len, c) {
 			//let args = [].slice.call(arguments);
@@ -679,7 +685,7 @@ function _repeat(s, n) {
 	}
 	return t;
 }
-lost.s$repeat = (function () {
+lost.s.repeat = (function () {
 	if (typeof String.prototype.repeat === 'function') {
 		return function (s, n) {
 			//return new Array(n).fill(s).join('');
@@ -724,7 +730,11 @@ function _addYear(dt, y) {
 lost.addYear = _addYear;
 function _addMonth(dt, m) {
 	dt = _dateClone(dt);
+	const dd = dt.getDate();
+	dt.setDate(1);
 	dt.setMonth(dt.getMonth() + m);
+	const eom = _getEoM(dt).getDate();
+	dt.setDate(dd > eom ? eom : dd);
 	return dt;
 }
 lost.addMonth = _addMonth;
@@ -754,6 +764,18 @@ function _setDate(dt, d) {
 }
 lost.setDate = _setDate;
 
+function _getBoM(dt) {
+	return _setDate(dt, 1);
+}
+lost.getBoM = _getBoM;
+function _getEoM(dt) {
+	dt = _getBoM(dt);
+	dt.setMonth(dt.getMonth() + 1);
+	dt.setDate(0);
+	return dt;
+}
+lost.getEoM = _getEoM;
+
 function _dateToString(dt, fmt) {
 	fmt = fmt || 'yyyy-mm-dd';
 	let y = dt.getFullYear();
@@ -765,6 +787,17 @@ function _dateToString(dt, fmt) {
 	return s;
 }
 lost.d2s = _dateToString;
+
+function _hyphenate(ymd) {
+	const re = /(\d{4})(\d{2})(\d{2})/g;
+	return ymd.replace(re, "$1-$2-$3");
+}
+lost.dt.hyphenate = _hyphenate;
+
+function _dehyphenate(ymd) {
+	return ymd.replace(/-/g, "");
+}
+lost.dt.dehyphenate = _dehyphenate;
 
 function JustDate(x) {
 	if (!(this instanceof JustDate)) {
@@ -798,12 +831,11 @@ JustDate.prototype = {
 		return this;
 	},
 	getBoM() {
-		const bom = _setDate(this.dt, 1);
+		const bom = _getBoM(this.dt);
 		return new JustDate(bom);
 	},
 	getEoM() {
-		const nextMonth = _addMonth(this.dt, 1);
-		const eom = _setDate(nextMonth, 0);
+		const eom = _getEoM(this.dt, 1);
 		return new JustDate(eom);
 	},
 	it() {

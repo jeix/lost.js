@@ -604,11 +604,11 @@ const assert = console.assert;
 (function () {
 	section('string.slice');
 	let s = '12345';
-	assert(lost.s$slice(s) === '12345');
-	assert(lost.s$slice(s, 1, -1) === '234');
-	assert(lost.s$slice(s, -1) === '5');
-	assert(lost.s$slice(s, 2, 4) === '34');
-	assert(lost.s$slice(s, -1, 1) === '');
+	assert(lost.s.slice(s) === '12345');
+	assert(lost.s.slice(s, 1, -1) === '234');
+	assert(lost.s.slice(s, -1) === '5');
+	assert(lost.s.slice(s, 2, 4) === '34');
+	assert(lost.s.slice(s, -1, 1) === '');
 })();
 
 (function () {
@@ -616,11 +616,20 @@ const assert = console.assert;
 	section('string.padEnd');
 	section('string.repeat');
 	let s = '123';
-	assert(lost.s$padStart(s, 5) === '  123');
-	assert(lost.s$padStart(s, 5, '0') === '00123');
-	assert(lost.s$padEnd(s, 5) === '123  ');
-	assert(lost.s$padEnd(s, 5, '0') === '12300');
-	assert(lost.s$repeat('*', 5) === '*****');
+	assert(lost.s.padStart(s, 5) === '  123');
+	assert(lost.s.padStart(s, 5, '0') === '00123');
+	assert(lost.s.padEnd(s, 5) === '123  ');
+	assert(lost.s.padEnd(s, 5, '0') === '12300');
+	assert(lost.s.repeat('*', 5) === '*****');
+})();
+
+(function () {
+	section('string.encomma');
+	section('string.decomma');
+	assert(lost.s.encomma('1234567.89') === '1,234,567.89');
+	assert(lost.s.encomma('-1234567.89') === '-1,234,567.89');
+	assert(lost.s.decomma('1,234,567.89') === '1234567.89');
+	assert(lost.s.decomma('-1,234,567.89') === '-1234567.89');
 })();
 
 ////////////////////////////////////////
@@ -637,6 +646,13 @@ const assert = console.assert;
     assert(dt === '2022.01.22');
 	//
 	assert(lost.date() instanceof Date);
+})();
+
+(function () {
+	section('date.hyphenate');
+	section('date.dehyphenate');
+	assert(lost.dt.hyphenate('20230518') === '2023-05-18');
+	assert(lost.dt.dehyphenate('2023-05-18') === '20230518');
 })();
 
 (function () {
@@ -657,6 +673,12 @@ const assert = console.assert;
 	section('date.eom');
 	assert(lost.date2('2023-04-28').getBoM().stringify() === '2023-04-01');
 	assert(lost.date2('2023-04-28').getEoM().stringify() === '2023-04-30');
+	assert(lost.date2('2023-05-31').addMonth(-1).stringify() === '2023-04-30');
+	assert(lost.date2('2023-05-31').addMonth(1).stringify() === '2023-06-30');
+	assert(lost.date2('2023-05-31').addMonth(-1).getBoM().stringify() === '2023-04-01');
+	assert(lost.date2('2023-05-31').addMonth(-1).getEoM().stringify() === '2023-04-30');
+	assert(lost.date2('2023-05-31').addMonth(1).getBoM().stringify() === '2023-06-01');
+	assert(lost.date2('2023-05-31').addMonth(1).getEoM().stringify() === '2023-06-30');
 })();
 
 (function () {
