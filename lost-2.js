@@ -799,11 +799,13 @@ function _hyphenate(ymd) {
 	return ymd.replace(re, "$1-$2-$3");
 }
 lost.dt.hyphenate = _hyphenate;
+lost.dt.hyphenize = _hyphenate;
 
 function _dehyphenate(ymd) {
 	return ymd.replace(/-/g, "");
 }
 lost.dt.dehyphenate = _dehyphenate;
+lost.dt.dehyphenize = _dehyphenate;
 
 function JustDate(x) {
 	if (!(this instanceof JustDate)) {
