@@ -631,7 +631,13 @@ lost.s.slice = function (s, begin, end) {
 function _encomma(s) {
 	//(typeof s === 'number') && (s = String(s));
 	//return (s || '').replace(/(\d)(?=(?:\d{3})+(?!\d))/g, '$1,');
-	return (s || '').replace(/(?<!\.(?:\d*))(\d)(?=(?:\d{3})+(?!\d))/g, '$1,');
+	//return (s || '').replace(/(?<!\.(?:\d*))(\d)(?=(?:\d{3})+(?!\d))/g, '$1,');
+	return (s || '').replace(/(?<!\.)(\d)(?=(?:\d{3})+(?!\d))/g, '$1,');
+		// x(?=y) -- Matches "x" only if "x" is followed by "y".
+		// x(?!y) -- Matches "x" only if "x" is not followed by "y".
+		// (?<=y)x -- Matches "x" only if "x" is preceded by "y".
+		// (?<!y)x -- Matches "x" only if "x" is not preceded by "y".
+		// (?:x) -- Matches "x" but does not remember the match.
 }
 lost.s.encomma = _encomma;
 
@@ -708,6 +714,7 @@ function _dateFrom(x) {
 	const m = Number(s.slice(4, 6));
 	const d = Number(s.slice(6, 8));
 	let dt = new Date();
+	dt.setDate(1);
 	y && dt.setFullYear(y);
 	m && dt.setMonth(m-1);
 	d && dt.setDate(d);
@@ -776,6 +783,7 @@ function _getBoM(dt) {
 lost.getBoM = _getBoM;
 function _getEoM(dt) {
 	dt = _getBoM(dt);
+	dt.setDate(1);
 	dt.setMonth(dt.getMonth() + 1);
 	dt.setDate(0);
 	return dt;
@@ -795,14 +803,24 @@ function _dateToString(dt, fmt) {
 lost.d2s = _dateToString;
 
 function _hyphenate(ymd) {
-	const re = /(\d{4})(\d{2})(\d{2})/g;
-	return ymd.replace(re, "$1-$2-$3");
+	if (typeof ymd === "string") {
+		ymd = _dehyphenate(ymd);
+		const re = /(\d{4})(\d{2})(\d{2})/g;
+		return ymd.replace(re, "$1-$2-$3");
+	} else {
+		return "";
+	}
 }
 lost.dt.hyphenate = _hyphenate;
 lost.dt.hyphenize = _hyphenate;
 
 function _dehyphenate(ymd) {
-	return ymd.replace(/-/g, "");
+	if (typeof ymd === "string") {
+		//return ymd.replace(/-/g, "");
+		return ymd.replace(/[-\.]/g, "");
+	} else {
+		return "";
+	}
 }
 lost.dt.dehyphenate = _dehyphenate;
 lost.dt.dehyphenize = _dehyphenate;
